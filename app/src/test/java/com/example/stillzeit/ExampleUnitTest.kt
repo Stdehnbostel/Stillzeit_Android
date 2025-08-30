@@ -11,7 +11,14 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun createTimeStringFunctionReturnsCorrectlyFormatedStrings() {
+        val timeString = createTimeString()
+        val lastChar = timeString.last() // Generierte String sollen auf Z enden. Keine Zeitzone angegeben
+        val eleventhChar = timeString[10] // Datum und Uhrzeit sind durch 'T' getrennt
+        val length = timeString.length // 20 Zeichen länge. Der Zeitstempel ist auf Sekunden genau, nicht Nanosekunden oder Millisekunden
+
+        assertEquals(lastChar, 'Z')
+        assertEquals(eleventhChar, 'T')
+        assertEquals(length, 20)
     }
 }
