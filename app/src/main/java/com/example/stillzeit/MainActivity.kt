@@ -17,14 +17,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.stillzeit.ui.theme.StillzeitTheme
-import java.time.Instant
-import java.time.ZoneOffset
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
+import java.time.format.FormatStyle
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +51,8 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
     var endTimeString by remember { mutableStateOf("") }
 
     Column(
-        modifier = modifier
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DisplayTimeText(
             prefix = R.string.start_time,
@@ -102,15 +104,15 @@ fun AppPreview() {
 
 @VisibleForTesting
 internal fun createTimeString(): String {
-    // die Java-Klasse Instant erzeugt standardmäßig einen Zeitstempel,
-    // der auch Nanosekunden enthält. Wir benötigen nur Sekunden.
-    val instant = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+    val zoneId = ZoneId.systemDefault()
+    val locale = java.util.Locale.GERMANY
+    val zonedDateTime = ZonedDateTime.now(zoneId)
     // DateTimeFormatter erfordert API leven 26.
     // Da Zeitstemple für diese App von zentraler Bedeutung sind
     // stellt dies die untere Schrnake der zu Unterstützenden
     // Android Versionen dar. (Android 8.0)
-    return DateTimeFormatter
-        .ISO_INSTANT
-        .withZone(ZoneOffset.UTC)
-        .format(instant)
+    val formatter = DateTimeFormatter
+        .ofLocalizedTime(FormatStyle.MEDIUM)
+        .withLocale(locale)
+    return zonedDateTime.format(formatter)
 }
