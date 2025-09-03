@@ -9,10 +9,11 @@ import org.junit.Assert.*
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class TimeStringUnitTests {
     @Test
-    fun createTimeStringFunctionReturnsCorrectlyFormatedStrings() {
-        val timeString = createTimeString()
+    fun createTimeStringForDatabaseFunctionReturnsCorrectlyFormatedStrings() {
+        val now = getSystemTimeStamp()
+        val timeString = createTimeStringForDatabase(now)
         val lastChar = timeString.last() // Generierte String sollen auf Z enden. Keine Zeitzone angegeben
         val eleventhChar = timeString[10] // Datum und Uhrzeit sind durch 'T' getrennt
         val length = timeString.length // 20 Zeichen länge. Der Zeitstempel ist auf Sekunden genau, nicht Nanosekunden oder Millisekunden
@@ -20,5 +21,15 @@ class ExampleUnitTest {
         assertEquals(lastChar, 'Z')
         assertEquals(eleventhChar, 'T')
         assertEquals(length, 20)
+    }
+
+
+    @Test
+    fun createTimeStringCorrectlyFormatedStrings() {
+        val now = getSystemTimeStamp()
+        val timeString = createTimeString(now)
+
+        val format = Regex("^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
+        assertTrue(format.matches(timeString))
     }
 }

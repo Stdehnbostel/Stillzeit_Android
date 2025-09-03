@@ -26,6 +26,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,10 +67,11 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
         )
         Button(
             onClick = {
+                val now = getSystemTimeStamp()
                 if (feeding) {
-                    endTimeString = createTimeString()
+                    endTimeString = createTimeString(now)
                 } else {
-                    startTimeString = createTimeString()
+                    startTimeString = createTimeString(now)
                 }
                 feeding = !feeding
             },
@@ -103,16 +105,35 @@ fun AppPreview() {
 }
 
 @VisibleForTesting
-internal fun createTimeString(): String {
+internal fun getSystemTimeStamp(): ZonedDateTime {
     val zoneId = ZoneId.systemDefault()
-    val locale = java.util.Locale.GERMANY
-    val zonedDateTime = ZonedDateTime.now(zoneId)
+    return ZonedDateTime.now(zoneId) // Der erzeugte Zeitstempel, enthält auch Nanosekunden. Wir benötigen nur Sekunden.
+            .truncatedTo(ChronoUnit.SECONDS)
+}
+
+@VisibleForTesting
+internal fun createTimeString(zonedDateTime: ZonedDateTime): String {
     // DateTimeFormatter erfordert API leven 26.
     // Da Zeitstemple für diese App von zentraler Bedeutung sind
     // stellt dies die untere Schrnake der zu Unterstützenden
     // Android Versionen dar. (Android 8.0)
+    val locale = java.util.Locale.GERMANY
     val formatter = DateTimeFormatter
-        .ofLocalizedTime(FormatStyle.MEDIUM)
+        .ofLocalizedTime(FormatStyle.MEDIUM) // Dieses Format ist für die Anziege geeignet.
+        // für die Datenbank: .ISO_INSTANT
+        .withLocale(locale)
+    return zonedDateTime.format(formatter)
+}
+
+@VisibleForTesting
+internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
+    // DateTimeFormatter erfordert API leven 26.
+    // Da Zeitstemple für diese App von zentraler Bedeutung sind
+    // stellt dies die untere Schrnake der zu Unterstützenden
+    // Android Versionen dar. (Android 8.0)
+    val locale = java.util.Locale.GERMANY
+    val formatter = DateTimeFormatter
+        .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
         .withLocale(locale)
     return zonedDateTime.format(formatter)
 }
