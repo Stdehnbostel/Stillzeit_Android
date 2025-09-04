@@ -21,6 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.example.stillzeit.ui.theme.StillzeitTheme
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -32,6 +42,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
         setContent {
             StillzeitTheme {
                 // In Tutorials (auch offizielle von Google) wird hier Surface anstelle von Scaffold verwendet
@@ -136,4 +150,32 @@ internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
         .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
         .withLocale(locale)
     return zonedDateTime.format(formatter)
+}
+
+@Entity (tableName = "breastFeeding")
+data class BreastFeeding(
+    @PrimaryKey val uid: Int,
+    @ColumnInfo(name = "start") val start: String?,
+    @ColumnInfo(name = "end") val end: String?,
+    @ColumnInfo(name = "active") val active: Int,
+)
+
+@Dao
+interface BreastFeedingDao {
+    @Query("SELECT * FROM breastFeeding")
+    fun getAll(): List<BreastFeeding>
+
+    @Query("SELECT * FROM breastFeeding WHERE uid IN (:breastFeedingIds)")
+    fun loadAllByIds(breastFeedingIds: IntArray): List<BreastFeeding>
+
+    @Insert
+    fun insertAll(vararg breastFeedings: BreastFeeding)
+
+    @Delete
+    fun delete(breastFeeding: BreastFeeding)
+}
+
+@Database(entities = [BreastFeeding::class], version = 1, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun breastFeedingDao(): BreastFeedingDao
 }
