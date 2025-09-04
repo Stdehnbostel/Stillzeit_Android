@@ -9,6 +9,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,8 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -89,10 +93,16 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
                 }
                 feeding = !feeding
             },
-            modifier = modifier
+            modifier = Modifier
+                /*
+                diese Größe muss wahrscheinlich noch angepasst werden
+                die Beschriftung der Buttons muss generell nochmal überdacht werden.
+                */
+                .size(dimensionResource(R.dimen.feedingTimerButton)),
+            shape = CircleShape
         ) {
             Text(
-                text = stringResource(R.string.timestamp_button),
+                text = stringResource(R.string.timestamp_button, "00:00:00"),
                 modifier = modifier
             )
         }

@@ -2,5 +2,5 @@
     <string name="app_name">Stillzeit</string>
     <string name="start_time">Beginn: %s</string>
     <string name="end_time">Ende: %s</string>
-    <string name="timestamp_button">Zeitstempel aufnehmen</string>
+    <string name="timestamp_button">%s</string>
 </resources>
