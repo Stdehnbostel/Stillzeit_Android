@@ -14,13 +14,9 @@ class TimeStringUnitTests {
     fun createTimeStringForDatabaseFunctionReturnsCorrectlyFormatedStrings() {
         val now = getSystemTimeStamp()
         val timeString = createTimeStringForDatabase(now)
-        val lastChar = timeString.last() // Generierte String sollen auf Z enden. Keine Zeitzone angegeben
-        val eleventhChar = timeString[10] // Datum und Uhrzeit sind durch 'T' getrennt
-        val length = timeString.length // 20 Zeichen länge. Der Zeitstempel ist auf Sekunden genau, nicht Nanosekunden oder Millisekunden
-
-        assertEquals(lastChar, 'Z')
-        assertEquals(eleventhChar, 'T')
-        assertEquals(length, 20)
+        val format = Regex("^\\d\\d\\d\\d-(0[1-9]|1[0-2])-([0-3][01]|[0-2]\\d)T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\dZ\$")
+        
+        assertTrue(format.matches(timeString))
     }
 
 
