@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.rememberComposableLambdaN
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +42,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import java.time.Duration
+import kotlin.time.toKotlinDuration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +56,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             StillzeitTheme {
                 // In Tutorials (auch offizielle von Google) wird hier Surface anstelle von Scaffold verwendet
-                // Surface ist veraltet, da aktuelle "Foldable" Modelle nicht gut unterstützt wrden.
+                // Surface ist veraltet, da aktuelle "Foldable" Modelle nicht gut unterstützt werden.
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MeasureFeedingTime(modifier = Modifier.padding(innerPadding))
                 }
@@ -66,8 +69,12 @@ class MainActivity : ComponentActivity() {
 fun MeasureFeedingTime(modifier: Modifier = Modifier) {
     var feeding by remember { mutableStateOf(false) }
 
+    var start by remember { mutableStateOf(getSystemTimeStamp()) }
+    var end by remember { mutableStateOf(getSystemTimeStamp()
+    ) }
     var startTimeString by remember { mutableStateOf("") }
     var endTimeString by remember { mutableStateOf("") }
+    var durationString by remember { mutableStateOf("00:00:00") }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -87,9 +94,13 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
             onClick = {
                 val now = getSystemTimeStamp()
                 if (feeding) {
+                    end = now
                     endTimeString = createTimeString(now)
+                    durationString = createDurationString(start, end)
                 } else {
+                    start = now
                     startTimeString = createTimeString(now)
+                    durationString = "00:00:00"
                 }
                 feeding = !feeding
             },
@@ -102,7 +113,7 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
             shape = CircleShape
         ) {
             Text(
-                text = stringResource(R.string.timestamp_button, "00:00:00"),
+                text = stringResource(R.string.timestamp_button, durationString),
                 modifier = modifier
             )
         }
@@ -160,6 +171,22 @@ internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
         .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
         .withLocale(locale)
     return zonedDateTime.format(formatter)
+}
+
+// Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
+@VisibleForTesting
+internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime): String {
+    var duration = Duration.between(start, end)
+    // umwandlung in KotlinDuration, da meine Duration Umsetzung
+    // Api level 31 benötigt hätte. Nicht sehr elegant. Wahrscheinlich geht das shöner.
+    val kotlinDuration = duration.toKotlinDuration()
+    var seconds = kotlinDuration.inWholeSeconds
+    val hours = seconds / 3600
+    seconds -= hours * 3600
+    val minutes = seconds / 60
+    seconds -= minutes * 60
+
+    return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
 }
 
 @Entity (tableName = "breastFeeding")
