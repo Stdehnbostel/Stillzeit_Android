@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.internal.rememberComposableLambdaN
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,10 +58,12 @@ class MainActivity : ComponentActivity() {
         ).build()
         setContent {
             StillzeitTheme {
-                // In Tutorials (auch offizielle von Google) wird hier Surface anstelle von Scaffold verwendet
-                // Surface ist veraltet, da aktuelle "Foldable" Modelle nicht gut unterstützt werden.
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MeasureFeedingTime(modifier = Modifier.padding(innerPadding))
+                Surface(
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        MeasureFeedingTime(modifier = Modifier.padding(innerPadding))
+                    }
                 }
             }
         }
@@ -67,14 +72,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MeasureFeedingTime(modifier: Modifier = Modifier) {
-    var feeding by remember { mutableStateOf(false) }
+    var feeding by rememberSaveable { mutableStateOf(false) }
 
-    var start by remember { mutableStateOf(getSystemTimeStamp()) }
-    var end by remember { mutableStateOf(getSystemTimeStamp()
+    var start by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
+    var end by rememberSaveable { mutableStateOf(getSystemTimeStamp()
     ) }
-    var startTimeString by remember { mutableStateOf("") }
-    var endTimeString by remember { mutableStateOf("") }
-    var durationString by remember { mutableStateOf("00:00:00") }
+    var startTimeString by rememberSaveable { mutableStateOf("") }
+    var endTimeString by rememberSaveable { mutableStateOf("") }
+    var durationString by rememberSaveable { mutableStateOf("00:00:00") }
 
     Column(
         modifier = modifier.fillMaxSize(),
