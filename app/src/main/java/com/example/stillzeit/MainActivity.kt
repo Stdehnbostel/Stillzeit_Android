@@ -1,6 +1,7 @@
 package com.example.stillzeit
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.internal.rememberComposableLambdaN
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.stillzeit.model.BreastFeeding
 import com.example.stillzeit.ui.theme.StillzeitTheme
+import kotlinx.coroutines.delay
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -81,6 +84,16 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
     var startTimeString by rememberSaveable { mutableStateOf("") }
     var endTimeString by rememberSaveable { mutableStateOf("") }
     var durationString by rememberSaveable { mutableStateOf("00:00:00") }
+
+    // Einfache Timer Implementierung. Muss später angepasst werden.
+    LaunchedEffect(start) {
+        Log.d("coroutineContext", "started Timer")
+        while (feeding) {
+            durationString = updateTimeString(start)
+            Log.d("coroutineContext", "updeted Timer")
+        }
+        Log.d("coroutineContext", "ended Timer")
+    }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -193,6 +206,12 @@ internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime): Str
     seconds -= minutes * 60
 
     return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+}
+
+suspend fun updateTimeString(start: ZonedDateTime): String {
+    delay(500)
+    val now = getSystemTimeStamp()
+    return createDurationString(start, now)
 }
 
 @Dao
