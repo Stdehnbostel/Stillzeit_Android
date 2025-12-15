@@ -39,6 +39,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.stillzeit.model.BreastFeeding
 import com.example.stillzeit.ui.theme.StillzeitTheme
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -193,14 +194,6 @@ internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime): Str
 
     return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
 }
-
-@Entity (tableName = "breastFeeding")
-data class BreastFeeding(
-    @PrimaryKey val uid: Int,
-    @ColumnInfo(name = "start") val start: String?,
-    @ColumnInfo(name = "end") val end: String?,
-    @ColumnInfo(name = "active") val active: Int,
-)
 
 @Dao
 interface BreastFeedingDao {
