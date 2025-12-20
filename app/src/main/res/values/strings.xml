@@ -3,4 +3,7 @@
     <string name="start_time">Beginn: %s</string>
     <string name="end_time">Ende: %s</string>
     <string name="timestamp_button">%s</string>
+    <string name="finish_meal_button">Stillmahlzeit abschließen</string>
+    <string name="left_feeding_button_name">Links</string>
+    <string name="right_feeding_button_name">Rechts</string>
 </resources>

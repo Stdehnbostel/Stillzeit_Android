@@ -7,8 +7,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,25 +25,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.rememberComposableLambdaN
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.room.ColumnInfo
-import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.stillzeit.data.BreastFeedingDao
@@ -77,6 +75,29 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MeasureFeedingTime(modifier: Modifier = Modifier) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier.fillMaxWidth()
+        ) {
+            DynamicTimer(R.string.left_feeding_button_name, modifier = modifier)
+            DynamicTimer(R.string.right_feeding_button_name, modifier = modifier)
+        }
+        Button(onClick = { }) {
+            Text(stringResource(R.string.finish_meal_button))
+        }
+    }
+}
+
+@Composable
+fun DynamicTimer(
+    @StringRes sideString: Int,
+    modifier: Modifier = Modifier
+) {
     var feeding by rememberSaveable { mutableStateOf(false) }
 
     var start by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
@@ -97,7 +118,7 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DisplayTimeText(
@@ -137,6 +158,7 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
                 modifier = modifier
             )
         }
+        Text(text = stringResource(sideString), modifier = modifier)
     }
 }
 
