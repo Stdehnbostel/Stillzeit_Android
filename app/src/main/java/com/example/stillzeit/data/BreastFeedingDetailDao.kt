@@ -4,19 +4,18 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.stillzeit.data.BreastFeeding
 
 @Dao
-interface BreastFeedingDao {
+interface BreastFeedingDetailDao {
     @Query("SELECT * FROM breastFeeding")
-    fun getAll(): List<BreastFeeding>
+    fun getAll(): List<BreastFeedingDetail>
 
     @Query("SELECT * FROM breastFeeding WHERE uid IN (:breastFeedingIds)")
-    fun loadAllByIds(breastFeedingIds: IntArray): List<BreastFeeding>
+    fun loadAllByIds(breastFeedingIds: IntArray): List<BreastFeedingDetail>
 
     @Insert
-    fun insertAll(vararg breastFeedings: BreastFeeding)
+    fun insertAll(vararg breastFeedings: BreastFeedingDetail)
 
     @Delete
-    fun delete(breastFeeding: BreastFeeding)
+    fun delete(breastFeeding: BreastFeedingDetail)
 }
