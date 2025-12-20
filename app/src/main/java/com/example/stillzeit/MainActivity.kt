@@ -41,7 +41,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.stillzeit.model.BreastFeeding
+import com.example.stillzeit.data.BreastFeedingDao
+import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.ui.theme.StillzeitTheme
 import kotlinx.coroutines.delay
 import java.time.ZoneId
@@ -212,21 +213,6 @@ suspend fun updateTimeString(start: ZonedDateTime): String {
     delay(500)
     val now = getSystemTimeStamp()
     return createDurationString(start, now)
-}
-
-@Dao
-interface BreastFeedingDao {
-    @Query("SELECT * FROM breastFeeding")
-    fun getAll(): List<BreastFeeding>
-
-    @Query("SELECT * FROM breastFeeding WHERE uid IN (:breastFeedingIds)")
-    fun loadAllByIds(breastFeedingIds: IntArray): List<BreastFeeding>
-
-    @Insert
-    fun insertAll(vararg breastFeedings: BreastFeeding)
-
-    @Delete
-    fun delete(breastFeeding: BreastFeeding)
 }
 
 @Database(entities = [BreastFeeding::class], version = 1, exportSchema = false)

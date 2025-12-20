@@ -1,10 +1,10 @@
-package com.example.stillzeit.model
+package com.example.stillzeit.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity (tableName = "breastFeeding")
+@Entity(tableName = "breastFeeding")
 data class BreastFeeding(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "start") val start: String?,
