@@ -12,15 +12,7 @@ import kotlinx.coroutines.flow.update
 
 class AddMealViewModel : ViewModel() {
     @OptIn(ExperimentalUuidApi::class)
-    private val _uiState = MutableStateFlow(AddMealUiState(Meal(
-        uuid = Uuid.random(),
-        numberOfFeedings = 0,
-        type = "breast",
-        start = "",
-        end = "",
-        comment = "",
-        breastFeedings = listOf(),
-    )))
+    private val _uiState = MutableStateFlow(AddMealUiState(null))
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
 
@@ -30,15 +22,16 @@ class AddMealViewModel : ViewModel() {
             currentState ->
             val oldMeal = currentState.meal
             currentState.copy(
-                meal = Meal(
-                    oldMeal.uuid,
-                    oldMeal.numberOfFeedings,
-                    oldMeal.type,
-                    mealStart,
-                    oldMeal.end,
-                    oldMeal.comment,
-                    oldMeal.breastFeedings
-                )
+                meal = oldMeal
+                    ?: Meal(
+                        Uuid.random(),
+                        0,
+                        "breast",
+                        mealStart,
+                        "",
+                        "oldMeal.comment",
+                        listOf()
+                    )
             )
         }
     }
@@ -49,20 +42,32 @@ class AddMealViewModel : ViewModel() {
                 currentState ->
             val oldMeal = currentState.meal
             currentState.copy(
-                meal = Meal(
-                    oldMeal.uuid,
-                    oldMeal.numberOfFeedings,
-                    oldMeal.type,
-                    oldMeal.start,
-                    mealEnd,
-                    oldMeal.comment,
-                    oldMeal.breastFeedings
-                )
+                meal = if (oldMeal != null) {
+                    Meal(
+                        oldMeal.uuid,
+                        oldMeal.numberOfFeedings,
+                        oldMeal.type,
+                        oldMeal.start,
+                        mealEnd,
+                        oldMeal.comment,
+                        oldMeal.breastFeedings
+                    )
+                } else {
+                    oldMeal
+                }
+            )
+        }
+    }
+
+    fun endMeal() {
+        _uiState.update {
+            currentState -> currentState.copy(
+                meal = null
             )
         }
     }
 }
 
 data class AddMealUiState(
-    val meal: Meal
+    val meal: Meal?
 )

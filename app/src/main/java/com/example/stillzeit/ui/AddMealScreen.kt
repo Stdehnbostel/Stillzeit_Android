@@ -37,6 +37,7 @@ import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import kotlin.time.toKotlinDuration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.stillzeit.data.Feeding
 
 @Composable
 fun AddMealSreen(
@@ -47,9 +48,10 @@ fun AddMealSreen(
 
     MeasureFeedingTime(
         viewModel::setMealStart,
+        viewModel::endMeal,
         viewModel::setMealEnd,
-        uiState.meal.start,
-        uiState.meal.end ?: "",
+        uiState.meal?.start ?: "",
+        uiState.meal?.end ?: "",
         modifier = modifier
     )
 }
@@ -57,7 +59,8 @@ fun AddMealSreen(
 @Composable
 fun MeasureFeedingTime(
     startMeal: (String) -> Unit,
-    endMeal: (String) -> Unit,
+    endMeal: () -> Unit,
+    endFeeding: (String) -> Unit,
     mealStartText: String,
     mealEndText: String,
     modifier: Modifier = Modifier
@@ -84,16 +87,16 @@ fun MeasureFeedingTime(
             DynamicTimer(
                 R.string.left_feeding_button_name,
                 startMeal,
-                endMeal,
+                endFeeding,
                 modifier = modifier
             )
             DynamicTimer(
                 R.string.right_feeding_button_name,
                 startMeal,
-                endMeal,
+                endFeeding,
                 modifier = modifier)
         }
-        Button(onClick = { }) {
+        Button(onClick = endMeal) {
             Text(stringResource(R.string.finish_meal_button))
         }
     }
@@ -103,16 +106,14 @@ fun MeasureFeedingTime(
 fun DynamicTimer(
     @StringRes sideString: Int,
     startMeal: (String) -> Unit,
-    endMeal: (String) -> Unit,
+    endFeeding: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var feeding by rememberSaveable { mutableStateOf(false) }
 
     var start by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
-    var end by rememberSaveable { mutableStateOf(getSystemTimeStamp()
-    ) }
-    var startTimeString by rememberSaveable { mutableStateOf("") }
-    var endTimeString by rememberSaveable { mutableStateOf("") }
+    var end by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
+
     var durationString by rememberSaveable { mutableStateOf("00:00:00") }
 
     // Einfache Timer Implementierung. Muss später angepasst werden.
@@ -129,31 +130,19 @@ fun DynamicTimer(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        DisplayTimeText(
-            prefix = R.string.start_time,
-            timeString = startTimeString,
-            modifier = Modifier
-        )
-        DisplayTimeText(
-            prefix = R.string.end_time,
-            timeString = endTimeString,
-            modifier = Modifier
-        )
         Button(
             onClick = {
                 val now = getSystemTimeStamp()
                 if (feeding) {
                     end = now
-                    val eTString = createTimeString(now)
-                    endTimeString = eTString
-                    endMeal(eTString)
+                    val endTimeString = createTimeString(now)
+                    endFeeding(endTimeString)
                     durationString = createDurationString(start, end)
                 } else {
                     start = now
-                    val sTtimeString = createTimeString(now)
-                    startTimeString = sTtimeString
+                    val startTimeString = createTimeString(now)
                     durationString = "00:00:00"
-                    startMeal(sTtimeString)
+                    startMeal(startTimeString)
                 }
                 feeding = !feeding
             },
