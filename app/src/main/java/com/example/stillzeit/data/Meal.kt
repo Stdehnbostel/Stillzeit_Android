@@ -1,12 +1,13 @@
 package com.example.stillzeit.data
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(tableName = "meal")
 data class MealInDb @OptIn(ExperimentalUuidApi::class) constructor(
-    val uuid: Uuid,
+    @PrimaryKey val uuid: Uuid,
     var numberOfFeedings: Int,
     var type: String,
     var start: String,

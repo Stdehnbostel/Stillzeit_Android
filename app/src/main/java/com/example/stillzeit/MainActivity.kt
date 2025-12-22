@@ -10,8 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import com.example.stillzeit.data.AppDatabase
+import com.example.stillzeit.ui.AddMealSreen
 import com.example.stillzeit.ui.MeasureFeedingTime
 import com.example.stillzeit.ui.theme.StillzeitTheme
 
@@ -29,7 +31,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        MeasureFeedingTime(modifier = Modifier.padding(innerPadding))
+                        AddMealSreen(
+                            viewModel = viewModel(),
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     }
                 }
             }

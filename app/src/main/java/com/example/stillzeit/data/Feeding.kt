@@ -4,11 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Entity(foreignKeys = [ForeignKey(
-    entity = Meal::class, onDelete = ForeignKey.CASCADE,
+    entity = MealInDb::class, onDelete = ForeignKey.CASCADE,
     parentColumns = ["uuid"],
     childColumns = ["mealId"],
 )])

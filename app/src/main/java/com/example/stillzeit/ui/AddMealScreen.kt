@@ -6,6 +6,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +35,17 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import kotlin.time.toKotlinDuration
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+@Composable
+fun AddMealSreen(
+    viewModel: AddMealViewModel,
+    modifier: Modifier = Modifier
+) {
+    val uiState = viewModel.uiState
+
+    MeasureFeedingTime()
+}
 
 @Composable
 fun MeasureFeedingTime(modifier: Modifier = Modifier) {
@@ -139,7 +151,10 @@ fun DisplayTimeText(
 @Composable
 fun AppPreview() {
     StillzeitTheme {
-        MeasureFeedingTime()
+        AddMealSreen(
+            viewModel = viewModel(),
+            modifier = Modifier.fillMaxSize()
+            )
     }
 }
 
