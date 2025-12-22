@@ -1,11 +1,14 @@
 package com.example.stillzeit.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.stillzeit.data.Meal
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class AddMealViewModel : ViewModel() {
     @OptIn(ExperimentalUuidApi::class)
@@ -13,13 +16,51 @@ class AddMealViewModel : ViewModel() {
         uuid = Uuid.random(),
         numberOfFeedings = 0,
         type = "breast",
-        start = "2025-01-01T00:00:00Z",
-        end = "2025-01-01T00:00:00Z",
+        start = "",
+        end = "",
         comment = "",
         breastFeedings = listOf(),
     )))
 
-    val uiState: StateFlow<AddMealUiState> = _uiState
+    val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun setMealStart(mealStart: String) {
+        _uiState.update {
+            currentState ->
+            val oldMeal = currentState.meal
+            currentState.copy(
+                meal = Meal(
+                    oldMeal.uuid,
+                    oldMeal.numberOfFeedings,
+                    oldMeal.type,
+                    mealStart,
+                    oldMeal.end,
+                    oldMeal.comment,
+                    oldMeal.breastFeedings
+                )
+            )
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun setMealEnd(mealEnd: String) {
+        _uiState.update {
+                currentState ->
+            val oldMeal = currentState.meal
+            currentState.copy(
+                meal = Meal(
+                    oldMeal.uuid,
+                    oldMeal.numberOfFeedings,
+                    oldMeal.type,
+                    oldMeal.start,
+                    mealEnd,
+                    oldMeal.comment,
+                    oldMeal.breastFeedings
+                )
+            )
+        }
+    }
 }
 
 data class AddMealUiState(

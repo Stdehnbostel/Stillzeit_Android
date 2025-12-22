@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,24 +43,55 @@ fun AddMealSreen(
     viewModel: AddMealViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState = viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
 
-    MeasureFeedingTime()
+    MeasureFeedingTime(
+        viewModel::setMealStart,
+        viewModel::setMealEnd,
+        uiState.meal.start,
+        uiState.meal.end ?: "",
+        modifier = modifier
+    )
 }
 
 @Composable
-fun MeasureFeedingTime(modifier: Modifier = Modifier) {
+fun MeasureFeedingTime(
+    startMeal: (String) -> Unit,
+    endMeal: (String) -> Unit,
+    mealStartText: String,
+    mealEndText: String,
+    modifier: Modifier = Modifier
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
+        DisplayTimeText(
+            prefix = R.string.start_time,
+            timeString = mealStartText,
+            modifier = Modifier
+        )
+        DisplayTimeText(
+            prefix = R.string.end_time,
+            timeString = mealEndText,
+            modifier = Modifier
+        )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = modifier.fillMaxWidth()
         ) {
-            DynamicTimer(R.string.left_feeding_button_name, modifier = modifier)
-            DynamicTimer(R.string.right_feeding_button_name, modifier = modifier)
+            DynamicTimer(
+                R.string.left_feeding_button_name,
+                startMeal,
+                endMeal,
+                modifier = modifier
+            )
+            DynamicTimer(
+                R.string.right_feeding_button_name,
+                startMeal,
+                endMeal,
+                modifier = modifier)
         }
         Button(onClick = { }) {
             Text(stringResource(R.string.finish_meal_button))
@@ -70,6 +102,8 @@ fun MeasureFeedingTime(modifier: Modifier = Modifier) {
 @Composable
 fun DynamicTimer(
     @StringRes sideString: Int,
+    startMeal: (String) -> Unit,
+    endMeal: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var feeding by rememberSaveable { mutableStateOf(false) }
@@ -98,24 +132,28 @@ fun DynamicTimer(
         DisplayTimeText(
             prefix = R.string.start_time,
             timeString = startTimeString,
-            modifier = modifier
+            modifier = Modifier
         )
         DisplayTimeText(
             prefix = R.string.end_time,
             timeString = endTimeString,
-            modifier = modifier
+            modifier = Modifier
         )
         Button(
             onClick = {
                 val now = getSystemTimeStamp()
                 if (feeding) {
                     end = now
-                    endTimeString = createTimeString(now)
+                    val eTString = createTimeString(now)
+                    endTimeString = eTString
+                    endMeal(eTString)
                     durationString = createDurationString(start, end)
                 } else {
                     start = now
-                    startTimeString = createTimeString(now)
+                    val sTtimeString = createTimeString(now)
+                    startTimeString = sTtimeString
                     durationString = "00:00:00"
+                    startMeal(sTtimeString)
                 }
                 feeding = !feeding
             },
@@ -129,7 +167,9 @@ fun DynamicTimer(
         ) {
             Text(
                 text = stringResource(R.string.timestamp_button, durationString),
-                modifier = modifier
+                maxLines = 1,
+                softWrap = false,
+                modifier = Modifier
             )
         }
         Text(text = stringResource(sideString), modifier = modifier)
