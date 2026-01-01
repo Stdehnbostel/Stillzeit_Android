@@ -4,9 +4,11 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import kotlin.uuid.ExperimentalUuidApi
 
 @Dao
 interface BreastFeedingDetailDao {
+    /*
     @Query("SELECT * FROM breastFeeding")
     fun getAll(): List<BreastFeedingDetail>
 
@@ -18,4 +20,5 @@ interface BreastFeedingDetailDao {
 
     @Delete
     fun delete(breastFeeding: BreastFeedingDetail)
+    */
 }

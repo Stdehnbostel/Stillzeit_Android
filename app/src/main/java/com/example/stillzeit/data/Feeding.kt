@@ -6,16 +6,16 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import java.util.UUID
 
 @Entity(foreignKeys = [ForeignKey(
     entity = MealInDb::class, onDelete = ForeignKey.CASCADE,
     parentColumns = ["uuid"],
     childColumns = ["mealId"],
 )])
-data class Feeding @OptIn(ExperimentalUuidApi::class) constructor(
-    @PrimaryKey val id: Int,
+data class Feeding (
+    @PrimaryKey val id: UUID,
     var volume: Int,
     var type: String,
-    @ColumnInfo(index = true) var mealId: Uuid
+    @ColumnInfo(index = true) var mealId: UUID
 )

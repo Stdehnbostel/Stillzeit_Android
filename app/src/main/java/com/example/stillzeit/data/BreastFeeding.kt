@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import java.util.UUID
 
 @Entity(tableName = "breastFeeding", foreignKeys = [
     ForeignKey(
@@ -14,13 +15,13 @@ import androidx.room.Relation
         childColumns = ["feedingId"]
     )
 ])
-data class BreastFeedingDetail(
+data class BreastFeedingDetail (
     @PrimaryKey val uid: Int,
     val start: String,
     val end: String?,
     var active: Boolean,
     val side: String,
-    val feedingId: Int
+    val feedingId: UUID,
 )
 
 data class BreastFeeding(
