@@ -37,8 +37,15 @@ import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import kotlin.time.toKotlinDuration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.stillzeit.data.BreastFeeding
+import com.example.stillzeit.data.BreastFeedingDetail
 import com.example.stillzeit.data.Feeding
+import java.util.Locale
+import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun AddMealSreen(
     viewModel: AddMealViewModel,
@@ -49,20 +56,24 @@ fun AddMealSreen(
     MeasureFeedingTime(
         viewModel::setMealStart,
         viewModel::endMeal,
-        viewModel::setMealEnd,
+        viewModel::endFeeding,
         uiState.meal?.start ?: "",
         uiState.meal?.end ?: "",
+        uiState.meal?.uuid,
         modifier = modifier
     )
 }
 
+// Element, das die zwei Timer Buttons für links, bzw. rechts enthält sowie den Button zum Beenden der Mahlzeit
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun MeasureFeedingTime(
     startMeal: (String) -> Unit,
     endMeal: () -> Unit,
-    endFeeding: (String) -> Unit,
+    endFeeding: (Feeding, BreastFeedingDetail) -> Unit,
     mealStartText: String,
     mealEndText: String,
+    mealId: UUID?,
     modifier: Modifier = Modifier
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
@@ -86,14 +97,18 @@ fun MeasureFeedingTime(
         ) {
             DynamicTimer(
                 R.string.left_feeding_button_name,
+                "left",
                 startMeal,
                 endFeeding,
+                mealId,
                 modifier = modifier
             )
             DynamicTimer(
                 R.string.right_feeding_button_name,
+                "right",
                 startMeal,
                 endFeeding,
+                mealId,
                 modifier = modifier)
         }
         Button(onClick = endMeal) {
@@ -102,11 +117,14 @@ fun MeasureFeedingTime(
     }
 }
 
+// runder Button mit Timer
 @Composable
 fun DynamicTimer(
     @StringRes sideString: Int,
+    side: String,
     startMeal: (String) -> Unit,
-    endFeeding: (String) -> Unit,
+    endFeeding: (Feeding, BreastFeedingDetail) -> Unit,
+    mealId: UUID?,
     modifier: Modifier = Modifier
 ) {
     var feeding by rememberSaveable { mutableStateOf(false) }
@@ -136,8 +154,20 @@ fun DynamicTimer(
                 if (feeding) {
                     end = now
                     val endTimeString = createTimeString(now)
-                    endFeeding(endTimeString)
+
                     durationString = createDurationString(start, end)
+                    if (mealId != null) {
+                        val newFeeding = Feeding(
+                            id = UUID.randomUUID(), volume = 0, mealId = mealId,
+                            type = "breast"
+                        )
+                        val detail = BreastFeedingDetail(
+                            0, start = createTimeString(start), end = endTimeString, active = false,
+                            side = side,
+                            feedingId = newFeeding.id
+                        )
+                        endFeeding(newFeeding, detail)
+                    }
                 } else {
                     start = now
                     val startTimeString = createTimeString(now)
@@ -200,7 +230,7 @@ internal fun createTimeString(zonedDateTime: ZonedDateTime): String {
     // Da Zeitstemple für diese App von zentraler Bedeutung sind
     // stellt dies die untere Schrnake der zu Unterstützenden
     // Android Versionen dar. (Android 8.0)
-    val locale = java.util.Locale.GERMANY
+    val locale = Locale.GERMANY
     val formatter = DateTimeFormatter
         .ofLocalizedTime(FormatStyle.MEDIUM) // Dieses Format ist für die Anziege geeignet.
         // für die Datenbank: .ISO_INSTANT
@@ -214,7 +244,7 @@ internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
     // Da Zeitstemple für diese App von zentraler Bedeutung sind
     // stellt dies die untere Schrnake der zu Unterstützenden
     // Android Versionen dar. (Android 8.0)
-    val locale = java.util.Locale.GERMANY
+    val locale = Locale.GERMANY
     val formatter = DateTimeFormatter
         .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
         .withLocale(locale)
