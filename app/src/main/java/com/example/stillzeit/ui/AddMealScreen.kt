@@ -1,9 +1,7 @@
 package com.example.stillzeit.ui
 
 import android.util.Log
-import androidx.annotation.BoolRes
 import androidx.annotation.StringRes
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,25 +25,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.stillzeit.R
+import com.example.stillzeit.data.Side
 import com.example.stillzeit.ui.theme.StillzeitTheme
 import kotlinx.coroutines.delay
-import java.time.Duration
-import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.time.temporal.ChronoUnit
-import kotlin.time.toKotlinDuration
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.stillzeit.data.BreastFeeding
-import com.example.stillzeit.data.BreastFeedingDetail
-import com.example.stillzeit.data.Feeding
-import com.example.stillzeit.data.Side
-import java.util.Locale
-import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
@@ -54,13 +40,25 @@ fun AddMealScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val start = uiState.meal?.start ?: ""
+    val end = uiState.meal?.end ?: ""
+    val mealStartText = if (start != "") {
+        viewModel.createTimeString(ZonedDateTime.parse(start))
+    } else {
+        start
+    }
+    val mealEndText = if (end != "") {
+        viewModel.createTimeString(ZonedDateTime.parse(end))
+    } else {
+        end
+    }
 
     MeasureFeedingTime(
         viewModel::endMeal,
         viewModel::processTimestampButton,
         viewModel::updateTimeString,
-        uiState.meal?.start ?: "",
-        uiState.meal?.end ?: "",
+        mealStartText,
+        mealEndText,
         uiState.feeding,
         viewModel.getLastFeeding()?.detail?.side?.side ?: Side.Empty().side,
         modifier = modifier
@@ -190,13 +188,6 @@ fun AppPreview() {
             modifier = Modifier.fillMaxSize()
             )
     }
-}
-
-@VisibleForTesting
-internal fun getSystemTimeStamp(): ZonedDateTime {
-    val zoneId = ZoneId.systemDefault()
-    return ZonedDateTime.now(zoneId) // Der erzeugte Zeitstempel, enthält auch Nanosekunden. Wir benötigen nur Sekunden.
-        .truncatedTo(ChronoUnit.SECONDS)
 }
 
 suspend fun updateTimeString(createDurationString: () -> String): String {

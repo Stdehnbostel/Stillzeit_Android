@@ -1,6 +1,5 @@
 package com.example.stillzeit.ui
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import com.example.stillzeit.data.BreastFeeding
@@ -8,12 +7,8 @@ import com.example.stillzeit.data.BreastFeedingDetail
 import com.example.stillzeit.data.Feeding
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.Side
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
-import kotlin.uuid.ExperimentalUuidApi
-import java.util.UUID
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.Duration
@@ -23,6 +18,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import java.util.UUID
 import kotlin.time.toKotlinDuration
 
 class AddMealViewModel : ViewModel() {
@@ -115,7 +111,7 @@ class AddMealViewModel : ViewModel() {
             if (newMeal == null) {
                 currentState.copy()
             } else {
-                var feedings = currentState.meal.breastFeedings.toMutableList()
+                val feedings = currentState.meal.breastFeedings.toMutableList()
                 val index = feedings.size - 1
                 feedings[index] = feeding
 
