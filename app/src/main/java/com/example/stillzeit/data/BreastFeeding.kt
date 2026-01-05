@@ -8,6 +8,12 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import java.util.UUID
 
+sealed class Side(val side: String) {
+    class Left: Side("left")
+    class Right: Side("right")
+    class Empty: Side("")
+}
+
 @Entity(tableName = "breastFeeding", foreignKeys = [
     ForeignKey(
         entity = Feeding::class,
@@ -20,7 +26,7 @@ data class BreastFeedingDetail (
     val start: String,
     val end: String?,
     var active: Boolean,
-    val side: String,
+    val side: Side,
     val feedingId: UUID,
 )
 

@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.data.BreastFeedingDetail
 import com.example.stillzeit.data.Feeding
+import com.example.stillzeit.data.Side
 import java.util.Locale
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
@@ -61,7 +62,7 @@ fun AddMealScreen(
         uiState.meal?.start ?: "",
         uiState.meal?.end ?: "",
         uiState.feeding,
-        viewModel.getLastFeeding()?.detail?.side ?: "",
+        viewModel.getLastFeeding()?.detail?.side?.side ?: Side.Empty().side,
         modifier = modifier
     )
 }
@@ -184,7 +185,7 @@ fun DisplayTimeText(
 @Composable
 fun AppPreview() {
     StillzeitTheme {
-        AddMealSreen(
+        AddMealScreen(
             viewModel = viewModel(),
             modifier = Modifier.fillMaxSize()
             )
