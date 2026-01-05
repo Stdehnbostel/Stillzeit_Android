@@ -26,10 +26,10 @@ data class BreastFeedingDetail (
 
 data class BreastFeeding(
     @Embedded
-    var feeding: Feeding,
+    val feeding: Feeding,
     @Relation(
         parentColumn = "id",
         entityColumn = "feedingId"
     )
-    var detail: BreastFeedingDetail
+    val detail: BreastFeedingDetail
 )

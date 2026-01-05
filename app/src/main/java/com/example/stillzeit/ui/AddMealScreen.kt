@@ -1,6 +1,7 @@
 package com.example.stillzeit.ui
 
 import android.util.Log
+import androidx.annotation.BoolRes
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
@@ -54,12 +55,15 @@ fun AddMealSreen(
     val uiState by viewModel.uiState.collectAsState()
 
     MeasureFeedingTime(
-        viewModel::setMealStart,
+        viewModel::startFeeding,
         viewModel::endMeal,
         viewModel::endFeeding,
+        viewModel::processTimestampButton,
+        viewModel::updateTimeString,
         uiState.meal?.start ?: "",
         uiState.meal?.end ?: "",
-        uiState.meal?.uuid,
+        uiState.feeding,
+        viewModel.getLastFeeding()?.detail?.side ?: "",
         modifier = modifier
     )
 }
@@ -68,12 +72,15 @@ fun AddMealSreen(
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 fun MeasureFeedingTime(
-    startMeal: (String) -> Unit,
+    startFeeding: (UUID, String, String) -> Unit,
     endMeal: () -> Unit,
-    endFeeding: (Feeding, BreastFeedingDetail) -> Unit,
+    endFeeding: (String) -> Unit,
+    processTimestampButton: (String) -> String,
+    createDurationString: () -> String,
     mealStartText: String,
     mealEndText: String,
-    mealId: UUID?,
+    feeding: Boolean,
+    lastFeedingSide: String,
     modifier: Modifier = Modifier
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,17 +105,17 @@ fun MeasureFeedingTime(
             DynamicTimer(
                 R.string.left_feeding_button_name,
                 "left",
-                startMeal,
-                endFeeding,
-                mealId,
+                processTimestampButton,
+                createDurationString,
+                feeding && (lastFeedingSide == "left"),
                 modifier = modifier
             )
             DynamicTimer(
                 R.string.right_feeding_button_name,
                 "right",
-                startMeal,
-                endFeeding,
-                mealId,
+                processTimestampButton,
+                createDurationString,
+                feeding && (lastFeedingSide == "right"),
                 modifier = modifier)
         }
         Button(onClick = endMeal) {
@@ -122,23 +129,18 @@ fun MeasureFeedingTime(
 fun DynamicTimer(
     @StringRes sideString: Int,
     side: String,
-    startMeal: (String) -> Unit,
-    endFeeding: (Feeding, BreastFeedingDetail) -> Unit,
-    mealId: UUID?,
+    processTimestampButton: (String) -> String,
+    createDurationString: () -> String,
+    feeding: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var feeding by rememberSaveable { mutableStateOf(false) }
-
-    var start by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
-    var end by rememberSaveable { mutableStateOf(getSystemTimeStamp()) }
-
     var durationString by rememberSaveable { mutableStateOf("00:00:00") }
 
     // Einfache Timer Implementierung. Muss später angepasst werden.
-    LaunchedEffect(start) {
+    LaunchedEffect(feeding) {
         Log.d("coroutineContext", "started Timer")
         while (feeding) {
-            durationString = updateTimeString(start)
+            durationString = updateTimeString(createDurationString)
             Log.d("coroutineContext", "updeted Timer")
         }
         Log.d("coroutineContext", "ended Timer")
@@ -150,31 +152,7 @@ fun DynamicTimer(
     ) {
         Button(
             onClick = {
-                val now = getSystemTimeStamp()
-                if (feeding) {
-                    end = now
-                    val endTimeString = createTimeString(now)
-
-                    durationString = createDurationString(start, end)
-                    if (mealId != null) {
-                        val newFeeding = Feeding(
-                            id = UUID.randomUUID(), volume = 0, mealId = mealId,
-                            type = "breast"
-                        )
-                        val detail = BreastFeedingDetail(
-                            0, start = createTimeString(start), end = endTimeString, active = false,
-                            side = side,
-                            feedingId = newFeeding.id
-                        )
-                        endFeeding(newFeeding, detail)
-                    }
-                } else {
-                    start = now
-                    val startTimeString = createTimeString(now)
-                    durationString = "00:00:00"
-                    startMeal(startTimeString)
-                }
-                feeding = !feeding
+                durationString = processTimestampButton(side)
             },
             modifier = Modifier
                 /*
@@ -224,51 +202,7 @@ internal fun getSystemTimeStamp(): ZonedDateTime {
         .truncatedTo(ChronoUnit.SECONDS)
 }
 
-@VisibleForTesting
-internal fun createTimeString(zonedDateTime: ZonedDateTime): String {
-    // DateTimeFormatter erfordert API leven 26.
-    // Da Zeitstemple für diese App von zentraler Bedeutung sind
-    // stellt dies die untere Schrnake der zu Unterstützenden
-    // Android Versionen dar. (Android 8.0)
-    val locale = Locale.GERMANY
-    val formatter = DateTimeFormatter
-        .ofLocalizedTime(FormatStyle.MEDIUM) // Dieses Format ist für die Anziege geeignet.
-        // für die Datenbank: .ISO_INSTANT
-        .withLocale(locale)
-    return zonedDateTime.format(formatter)
-}
-
-@VisibleForTesting
-internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
-    // DateTimeFormatter erfordert API leven 26.
-    // Da Zeitstemple für diese App von zentraler Bedeutung sind
-    // stellt dies die untere Schrnake der zu Unterstützenden
-    // Android Versionen dar. (Android 8.0)
-    val locale = Locale.GERMANY
-    val formatter = DateTimeFormatter
-        .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
-        .withLocale(locale)
-    return zonedDateTime.format(formatter)
-}
-
-// Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
-@VisibleForTesting
-internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime): String {
-    var duration = Duration.between(start, end)
-    // umwandlung in KotlinDuration, da meine Duration Umsetzung
-    // Api level 31 benötigt hätte. Nicht sehr elegant. Wahrscheinlich geht das shöner.
-    val kotlinDuration = duration.toKotlinDuration()
-    var seconds = kotlinDuration.inWholeSeconds
-    val hours = seconds / 3600
-    seconds -= hours * 3600
-    val minutes = seconds / 60
-    seconds -= minutes * 60
-
-    return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
-}
-
-suspend fun updateTimeString(start: ZonedDateTime): String {
+suspend fun updateTimeString(createDurationString: () -> String): String {
     delay(500)
-    val now = getSystemTimeStamp()
-    return createDurationString(start, now)
+    return createDurationString()
 }

@@ -1,9 +1,6 @@
 package com.example.stillzeit
 
-import com.example.stillzeit.ui.createDurationString
-import com.example.stillzeit.ui.createTimeString
-import com.example.stillzeit.ui.createTimeStringForDatabase
-import com.example.stillzeit.ui.getSystemTimeStamp
+import com.example.stillzeit.ui.AddMealViewModel
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -16,10 +13,11 @@ import java.time.ZoneId
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class TimeStringUnitTests {
+    val viewModel = AddMealViewModel()
     @Test
     fun createTimeStringForDatabaseFunctionReturnsCorrectlyFormatedStrings() {
-        val now = getSystemTimeStamp()
-        val timeString = createTimeStringForDatabase(now)
+        val now = viewModel.getSystemTimeStamp()
+        val timeString = viewModel.createTimeStringForDatabase(now)
         val format = Regex("^\\d\\d\\d\\d-(0[1-9]|1[0-2])-([0-3][01]|[0-2]\\d)T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\dZ\$")
 
         assertTrue(format.matches(timeString))
@@ -28,8 +26,8 @@ class TimeStringUnitTests {
 
     @Test
     fun createTimeStringCorrectlyFormatedStrings() {
-        val now = getSystemTimeStamp()
-        val timeString = createTimeString(now)
+        val now = viewModel.getSystemTimeStamp()
+        val timeString = viewModel.createTimeString(now)
 
         val format = Regex("^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
         assertTrue(format.matches(timeString))
@@ -42,7 +40,7 @@ class TimeStringUnitTests {
         val end = ZonedDateTime.of(2025, 8, 1, 11, 9, 20, 0, zone)
 
         val format = Regex("^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
-        val durationString = createDurationString(start, end)
+        val durationString = viewModel.createDurationString(start, end)
         assertTrue(format.matches(durationString))
     }
 }
