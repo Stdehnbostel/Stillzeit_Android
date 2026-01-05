@@ -36,11 +36,12 @@ class AddMealViewModel : ViewModel() {
         val now = getSystemTimeStamp()
         if (_uiState.value.feeding) {
 
-            val endTimeString = createTimeString(now)
+            val endTimeString = createTimeStringForDatabase(now)
 
-            durationString = createDurationString(_uiState.value.start, now)
-            endFeeding(endTimeString)
             val currentSite = getLastFeeding()?.detail?.side ?: return "Error"
+            durationString = createDurationString(_uiState.value.start, now, currentSite)
+            endFeeding(endTimeString)
+
             if (currentSite != side) {
                 val newSite = if (currentSite == "left") { "right" } else if (currentSite == "right") { "left" } else { return "error" }
                 return processTimestampButton(newSite)
@@ -52,11 +53,11 @@ class AddMealViewModel : ViewModel() {
                     start = now
                 )
             }
-            val startTimeString = createTimeString(now)
-            durationString = "00:00:00"
+            val startTimeString = createTimeStringForDatabase(now)
 
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, side)
+            durationString = updateTimeString()
         }
         return durationString
     }
@@ -162,6 +163,30 @@ class AddMealViewModel : ViewModel() {
         }
     }
 
+    fun getAccumulatedDuration(side: String): kotlin.time.Duration {
+        val feedings = _uiState.value.meal?.breastFeedings ?: return kotlin.time.Duration.ZERO
+
+        val filteredFeedings = feedings.filter {
+            feeding ->
+            feeding.detail.side == side && !feeding.detail.active
+        }
+
+        val feedingTimes = filteredFeedings.map {
+            feeding ->
+            val start = ZonedDateTime.parse(feeding.detail.start)
+            val end = ZonedDateTime.parse(feeding.detail.end)
+            return@map calculateDuration(start, end)
+        }
+
+        return if (!feedingTimes.isEmpty()) {
+            feedingTimes.reduce { acc, value ->
+                acc + value
+            }
+        } else {
+            kotlin.time.Duration.ZERO
+        }
+    }
+
     fun setMealEnd(mealEnd: String) {
         _uiState.update { currentState ->
             val oldMeal = currentState.meal
@@ -225,14 +250,19 @@ class AddMealViewModel : ViewModel() {
         return zonedDateTime.format(formatter)
     }
 
-    // Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
     @VisibleForTesting
-    internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime): String {
+    internal fun calculateDuration(start: ZonedDateTime, end: ZonedDateTime): kotlin.time.Duration {
         val duration = Duration.between(start, end)
         // umwandlung in KotlinDuration, da meine Duration Umsetzung
         // Api level 31 benötigt hätte. Nicht sehr elegant. Wahrscheinlich geht das shöner.
-        val kotlinDuration = duration.toKotlinDuration()
-        var seconds = kotlinDuration.inWholeSeconds
+        return duration.toKotlinDuration()
+    }
+
+    // Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
+    @VisibleForTesting
+    internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime, side: String): String {
+        val duration = calculateDuration(start, end) + getAccumulatedDuration(side)
+        var seconds = duration.inWholeSeconds
         val hours = seconds / 3600
         seconds -= hours * 3600
         val minutes = seconds / 60
@@ -243,7 +273,8 @@ class AddMealViewModel : ViewModel() {
 
     fun updateTimeString(): String {
         val now = getSystemTimeStamp()
-        return createDurationString(_uiState.value.start, now)
+        val currentSide = getLastFeeding()?.detail?.side ?: return "Error"
+        return createDurationString(_uiState.value.start, now, currentSide)
     }
 }
 
