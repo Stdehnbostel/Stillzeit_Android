@@ -13,8 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import com.example.stillzeit.data.AppDatabase
-import com.example.stillzeit.ui.AddMealSreen
-import com.example.stillzeit.ui.MeasureFeedingTime
+import com.example.stillzeit.ui.AddMealScreen
 import com.example.stillzeit.ui.theme.StillzeitTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        AddMealSreen(
+                        AddMealScreen(
                             viewModel = viewModel(),
                             modifier = Modifier.padding(innerPadding)
                         )

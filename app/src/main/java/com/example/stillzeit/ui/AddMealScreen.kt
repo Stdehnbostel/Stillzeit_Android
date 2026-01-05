@@ -48,16 +48,14 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun AddMealSreen(
+fun AddMealScreen(
     viewModel: AddMealViewModel,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     MeasureFeedingTime(
-        viewModel::startFeeding,
         viewModel::endMeal,
-        viewModel::endFeeding,
         viewModel::processTimestampButton,
         viewModel::updateTimeString,
         uiState.meal?.start ?: "",
@@ -72,9 +70,7 @@ fun AddMealSreen(
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 fun MeasureFeedingTime(
-    startFeeding: (UUID, String, String) -> Unit,
     endMeal: () -> Unit,
-    endFeeding: (String) -> Unit,
     processTimestampButton: (String) -> String,
     createDurationString: () -> String,
     mealStartText: String,
@@ -141,7 +137,7 @@ fun DynamicTimer(
         Log.d("coroutineContext", "started Timer")
         while (feeding) {
             durationString = updateTimeString(createDurationString)
-            Log.d("coroutineContext", "updeted Timer")
+            Log.d("coroutineContext", "updated Timer")
         }
         Log.d("coroutineContext", "ended Timer")
     }
