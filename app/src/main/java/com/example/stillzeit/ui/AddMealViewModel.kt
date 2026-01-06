@@ -217,6 +217,14 @@ class AddMealViewModel : ViewModel() {
     }
 
     fun endMeal() {
+        val now = getSystemTimeStamp()
+        val endFeedingTimeString = createTimeStringForDatabase(now)
+        endFeeding(endFeedingTimeString)
+
+        // In Datenbank speichern
+        /* TODO */
+
+
         _uiState.update {
             currentState -> currentState.copy(
                 meal = null
@@ -281,6 +289,7 @@ class AddMealViewModel : ViewModel() {
 
     fun updateTimeString(): String {
         val now = getSystemTimeStamp()
+        if (_uiState.value.meal == null) return "00:00:00"
         val currentSide = getLastFeeding()?.detail?.side ?: return "Error"
         return createDurationString(_uiState.value.start, now, currentSide.side)
     }
