@@ -16,15 +16,20 @@ class Converters {
     @TypeConverter
     fun stringToSide(string: String): Side {
         return when (string) {
-            "left" -> Side.Left()
-            "right" -> Side.Right()
+            "left" -> Side.LEFT
+            "right" -> Side.RIGHT
             // sollte eventuell Thrown, falls string != ""
-            else -> Side.Empty()
+            else -> Side.EMPTY
         }
+    }
+
+    @TypeConverter
+    fun mealTypeToString(type: MealType): String {
+        return type.toString()
     }
 }
 
-@Database(entities = [Feeding::class, BreastFeedingDetail::class, MealInDb::class], version = 1, exportSchema = false)
+@Database(entities = [FeedingEntity::class, BreastFeedingDetailEntity::class, MealEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun breastFeedingDao(): FeedingDao

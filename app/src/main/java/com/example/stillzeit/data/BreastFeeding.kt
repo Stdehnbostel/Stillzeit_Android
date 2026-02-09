@@ -8,34 +8,58 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import java.util.UUID
 
-sealed class Side(val side: String) {
-    class Left: Side("left")
-    class Right: Side("right")
-    class Empty: Side("")
+enum class Side(val side: String) {
+    LEFT("left"),
+    RIGHT("right"),
+    EMPTY(""),
 }
-
-@Entity(tableName = "breastFeeding", foreignKeys = [
-    ForeignKey(
-        entity = Feeding::class,
-        parentColumns = ["id"],
-        childColumns = ["feedingId"]
-    )
-])
-data class BreastFeedingDetail (
-    @PrimaryKey val uid: Int,
-    val start: String,
-    val end: String?,
-    var active: Boolean,
-    val side: Side,
-    val feedingId: UUID,
-)
 
 data class BreastFeeding(
     @Embedded
-    val feeding: Feeding,
+    val feeding: FeedingEntity,
     @Relation(
         parentColumn = "id",
         entityColumn = "feedingId"
     )
-    val detail: BreastFeedingDetail
-)
+    val detail: BreastFeedingDetailEntity
+) : MealComponent {
+    override val description: String
+        get() = TODO("Not yet implemented")
+
+    override val id: String get() = feeding.id
+
+    override val intervallTime: Pair<String, String?>
+        get() = Pair(detail.start, detail.end)
+
+    override val mealId: String
+        get() = feeding.mealId
+
+    override val start: String
+        get() = detail.start
+
+    override val title: String
+        get() = TODO("Not yet implemented")
+
+    override val volume: Int
+        get() = TODO("Not yet implemented")
+
+    override fun compareTo(other: MealComponent): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is BreastFeeding) {
+            feeding.id == other.feeding.id
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
+    override fun toString(): String {
+        return super.toString()
+    }
+}

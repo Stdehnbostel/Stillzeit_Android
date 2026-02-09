@@ -60,7 +60,7 @@ fun AddMealScreen(
         mealStartText,
         mealEndText,
         uiState.feeding,
-        viewModel.getLastFeeding()?.detail?.side?.side ?: Side.Empty().side,
+        viewModel.getLastFeeding()?.detail?.side?.side ?: Side.EMPTY.side,
         modifier = modifier
     )
 }

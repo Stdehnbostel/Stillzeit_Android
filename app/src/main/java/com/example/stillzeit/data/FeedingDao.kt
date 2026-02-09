@@ -4,15 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import kotlin.uuid.ExperimentalUuidApi
-
 
 @Dao
 interface FeedingDao {
 
     @Insert
-    suspend fun insert(feeding: Feeding)
+    suspend fun insert(feeding: FeedingEntity)
 
     @Query("SELECT * FROM feeding")
-    fun getAllFeedings(): Flow<List<Feeding>>
+    fun getAllFeedings(): Flow<List<FeedingEntity>>
 }

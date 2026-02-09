@@ -3,9 +3,10 @@ package com.example.stillzeit.ui
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import com.example.stillzeit.data.BreastFeeding
-import com.example.stillzeit.data.BreastFeedingDetail
-import com.example.stillzeit.data.Feeding
+import com.example.stillzeit.data.BreastFeedingDetailEntity
+import com.example.stillzeit.data.FeedingEntity
 import com.example.stillzeit.data.Meal
+import com.example.stillzeit.data.MealType
 import com.example.stillzeit.data.Side
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,13 +56,13 @@ class AddMealViewModel : ViewModel() {
             val id = UUID.randomUUID()
             val newFeedingSide = when (side) {
                 "left" -> {
-                    Side.Left()
+                    Side.LEFT
                 }
                 "right" -> {
-                    Side.Right()
+                    Side.RIGHT
                 }
                 else -> {
-                    Side.Empty()
+                    Side.EMPTY
                 }
             }
             startFeeding(id, startTimeString, newFeedingSide)
@@ -74,7 +75,7 @@ class AddMealViewModel : ViewModel() {
         val feedings = _uiState.value.meal?.breastFeedings ?: return
         val index = feedings.size - 1
         val lastFeeding = feedings[index]
-        val updatedFeedingDetail = BreastFeedingDetail(lastFeeding.detail.uid, lastFeeding.detail.start, end, false, lastFeeding.detail.side, lastFeeding.detail.feedingId)
+        val updatedFeedingDetail = BreastFeedingDetailEntity(lastFeeding.detail.feedingId, lastFeeding.detail.start, end, false, lastFeeding.detail.side)
         updateLastFeeding(BreastFeeding(lastFeeding.feeding, updatedFeedingDetail))
         _uiState.update {
                 currentState ->
@@ -89,8 +90,8 @@ class AddMealViewModel : ViewModel() {
             setMealStart(start)
         }
 
-        val feeding = Feeding(id, 0, "breast", _uiState.value.meal?.uuid ?: return)
-        val detail = BreastFeedingDetail(0, start, null, true, side, id)
+        val feeding = FeedingEntity(id.toString(), 0, MealType.BREAST, _uiState.value.meal?.uuid.toString() ?: return)
+        val detail = BreastFeedingDetailEntity(id.toString(), start, null, true, side)
         val breastFeeding = BreastFeeding(feeding, detail)
         addFeedingToMeal(breastFeeding)
         _uiState.update {

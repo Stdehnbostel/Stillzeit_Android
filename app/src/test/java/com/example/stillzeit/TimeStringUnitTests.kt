@@ -1,5 +1,6 @@
 package com.example.stillzeit
 
+import com.example.stillzeit.data.Side
 import com.example.stillzeit.ui.AddMealViewModel
 import org.junit.Test
 
@@ -40,7 +41,7 @@ class TimeStringUnitTests {
         val end = ZonedDateTime.of(2025, 8, 1, 11, 9, 20, 0, zone)
 
         val format = Regex("^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$")
-        val durationString = viewModel.createDurationString(start, end)
+        val durationString = viewModel.createDurationString(start, end, "")
         assertTrue(format.matches(durationString))
     }
 }
