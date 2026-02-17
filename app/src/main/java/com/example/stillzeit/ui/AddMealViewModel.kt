@@ -29,44 +29,44 @@ class AddMealViewModel : ViewModel() {
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
 
-    fun processTimestampButton(side: String): String {
+    fun processTimestampButton(side: Side): String {
         val durationString: String
         val now = getSystemTimeStamp()
-        if (_uiState.value.feeding) {
+        val currentSide = getLastFeeding()?.detail?.side
 
-            val endTimeString = createTimeStringForDatabase(now)
-
-            val currentSite = getLastFeeding()?.detail?.side ?: return "Error"
-            durationString = createDurationString(_uiState.value.start, now, currentSite.side)
-            endFeeding(endTimeString)
-
-            if (currentSite.side != side) {
-                val newSite = if (currentSite.side == "left") { "right" } else if (currentSite.side == "right") { "left" } else { return "error" }
-                return processTimestampButton(newSite)
-            }
-        } else {
-            _uiState.update {
-                currentState ->
+        if (!_uiState.value.feeding) {
+            _uiState.update { currentState ->
                 currentState.copy(
                     start = now
                 )
             }
             val startTimeString = createTimeStringForDatabase(now)
-
             val id = UUID.randomUUID()
-            val newFeedingSide = when (side) {
-                "left" -> {
-                    Side.LEFT
-                }
-                "right" -> {
-                    Side.RIGHT
-                }
-                else -> {
-                    Side.EMPTY
-                }
-            }
-            startFeeding(id, startTimeString, newFeedingSide)
+            startFeeding(id, startTimeString, side)
             durationString = updateTimeString()
+        }
+        else if (currentSide != side) {
+            val endTimeString = createTimeStringForDatabase(now)
+
+            if (currentSide == null) return "Error"
+
+            endFeeding(endTimeString)
+            val newSide = if (currentSide == Side.LEFT) { Side.RIGHT } else if (currentSide == Side.RIGHT) { Side.LEFT } else { return "error" }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    start = now
+                )
+            }
+            durationString = createDurationString(_uiState.value.start, now, newSide)
+            val startTimeString = createTimeStringForDatabase(now)
+            val id = UUID.randomUUID()
+            startFeeding(id, startTimeString, newSide)
+        } else {
+            val endTimeString = createTimeStringForDatabase(now)
+
+            if (currentSide == null) return "Error"
+            durationString = createDurationString(_uiState.value.start, now, currentSide)
+            endFeeding(endTimeString)
         }
         return durationString
     }
@@ -172,12 +172,12 @@ class AddMealViewModel : ViewModel() {
         }
     }
 
-    fun getAccumulatedDuration(side: String): kotlin.time.Duration {
+    fun getAccumulatedDuration(side: Side): kotlin.time.Duration {
         val feedings = _uiState.value.meal?.breastFeedings ?: return kotlin.time.Duration.ZERO
 
         val filteredFeedings = feedings.filter {
             feeding ->
-            feeding.detail.side.side == side && !feeding.detail.active
+            feeding.detail.side == side && !feeding.detail.active
         }
 
         val feedingTimes = filteredFeedings.map {
@@ -277,7 +277,7 @@ class AddMealViewModel : ViewModel() {
 
     // Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
     @VisibleForTesting
-    internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime, side: String): String {
+    internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime, side: Side): String {
         val duration = calculateDuration(start, end) + getAccumulatedDuration(side)
         var seconds = duration.inWholeSeconds
         val hours = seconds / 3600
@@ -292,7 +292,7 @@ class AddMealViewModel : ViewModel() {
         val now = getSystemTimeStamp()
         if (_uiState.value.meal == null) return "00:00:00"
         val currentSide = getLastFeeding()?.detail?.side ?: return "Error"
-        return createDurationString(_uiState.value.start, now, currentSide.side)
+        return createDurationString(_uiState.value.start, now, currentSide)
     }
 }
 

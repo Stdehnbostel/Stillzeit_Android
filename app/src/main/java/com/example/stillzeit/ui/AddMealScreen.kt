@@ -70,7 +70,7 @@ fun AddMealScreen(
 @Composable
 fun MeasureFeedingTime(
     endMeal: () -> Unit,
-    processTimestampButton: (String) -> String,
+    processTimestampButton: (Side) -> String,
     createDurationString: () -> String,
     mealStartText: String,
     mealEndText: String,
@@ -124,7 +124,7 @@ fun MeasureFeedingTime(
 fun DynamicTimer(
     @StringRes sideString: Int,
     side: String,
-    processTimestampButton: (String) -> String,
+    processTimestampButton: (Side) -> String,
     createDurationString: () -> String,
     feeding: Boolean,
     modifier: Modifier = Modifier
@@ -147,7 +147,18 @@ fun DynamicTimer(
     ) {
         Button(
             onClick = {
-                durationString = processTimestampButton(side)
+                val newFeedingSide = when (side) {
+                    "left" -> {
+                        Side.LEFT
+                    }
+                    "right" -> {
+                        Side.RIGHT
+                    }
+                    else -> {
+                        Side.EMPTY
+                    }
+                }
+                durationString = processTimestampButton(newFeedingSide)
             },
             modifier = Modifier
                 /*
