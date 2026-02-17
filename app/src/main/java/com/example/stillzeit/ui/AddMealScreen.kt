@@ -40,8 +40,8 @@ fun AddMealScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val start = uiState.meal?.start ?: ""
-    val end = uiState.meal?.end ?: ""
+    val start = uiState.lastMeal?.start ?: ""
+    val end = uiState.lastMeal?.end ?: ""
     val mealStartText = if (start != "") {
         viewModel.createTimeString(ZonedDateTime.parse(start))
     } else {
@@ -52,28 +52,32 @@ fun AddMealScreen(
     } else {
         end
     }
-
-    MeasureFeedingTime(
-        viewModel::endMeal,
-        viewModel::processTimestampButton,
-        viewModel::updateTimeString,
-        mealStartText,
-        mealEndText,
-        uiState.feeding,
-        viewModel.getLastFeeding()?.detail?.side?.side ?: Side.EMPTY.side,
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-    )
+            .fillMaxWidth()
+    ) {
+        MeasureFeedingTime(
+            viewModel::endMeal,
+            viewModel::processTimestampButton,
+            viewModel::updateTimeString,
+            uiState.feeding,
+            viewModel.getLastFeeding()?.detail?.side?.side ?: Side.EMPTY.side,
+            modifier = modifier
+        )
+        LastFeeding(
+            mealStartText,
+            mealEndText,
+            modifier = modifier
+        )
+    }
 }
 
 // Element, das die zwei Timer Buttons für links, bzw. rechts enthält sowie den Button zum Beenden der Mahlzeit
-@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun MeasureFeedingTime(
     endMeal: () -> Unit,
     processTimestampButton: (Side) -> String,
     createDurationString: () -> String,
-    mealStartText: String,
-    mealEndText: String,
     feeding: Boolean,
     lastFeedingSide: String,
     modifier: Modifier = Modifier
@@ -83,23 +87,13 @@ fun MeasureFeedingTime(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        DisplayTimeText(
-            prefix = R.string.start_time,
-            timeString = mealStartText,
-            modifier = Modifier
-        )
-        DisplayTimeText(
-            prefix = R.string.end_time,
-            timeString = mealEndText,
-            modifier = Modifier
-        )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = modifier.fillMaxWidth()
         ) {
             DynamicTimer(
                 R.string.left_feeding_button_name,
-                "left",
+                Side.LEFT,
                 processTimestampButton,
                 createDurationString,
                 feeding && (lastFeedingSide == "left"),
@@ -107,7 +101,7 @@ fun MeasureFeedingTime(
             )
             DynamicTimer(
                 R.string.right_feeding_button_name,
-                "right",
+                Side.RIGHT,
                 processTimestampButton,
                 createDurationString,
                 feeding && (lastFeedingSide == "right"),
@@ -119,11 +113,29 @@ fun MeasureFeedingTime(
     }
 }
 
+@Composable
+fun LastFeeding(
+    mealStartText: String,
+    mealEndText: String,
+    modifier: Modifier = Modifier
+) {
+    DisplayTimeText(
+        prefix = R.string.start_time,
+        timeString = mealStartText,
+        modifier = Modifier
+    )
+    DisplayTimeText(
+        prefix = R.string.end_time,
+        timeString = mealEndText,
+        modifier = Modifier
+    )
+}
+
 // runder Button mit Timer
 @Composable
 fun DynamicTimer(
     @StringRes sideString: Int,
-    side: String,
+    side: Side,
     processTimestampButton: (Side) -> String,
     createDurationString: () -> String,
     feeding: Boolean,
@@ -147,18 +159,7 @@ fun DynamicTimer(
     ) {
         Button(
             onClick = {
-                val newFeedingSide = when (side) {
-                    "left" -> {
-                        Side.LEFT
-                    }
-                    "right" -> {
-                        Side.RIGHT
-                    }
-                    else -> {
-                        Side.EMPTY
-                    }
-                }
-                durationString = processTimestampButton(newFeedingSide)
+                durationString = processTimestampButton(side)
             },
             modifier = Modifier
                 /*
