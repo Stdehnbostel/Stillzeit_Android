@@ -24,7 +24,7 @@ import kotlin.time.toKotlinDuration
 
 class AddMealViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
-        AddMealUiState(null, false,getSystemTimeStamp())
+        AddMealUiState(null, false,getSystemTimeStamp(), null)
     )
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
@@ -156,18 +156,17 @@ class AddMealViewModel : ViewModel() {
 
     fun setMealStart(mealStart: String) {
         _uiState.update { currentState ->
-            val oldMeal = currentState.meal
+            val newMeal = Meal(UUID.randomUUID(),
+            0,
+            "breast",
+            mealStart,
+            "",
+            "",
+            listOf()
+            )
             currentState.copy(
-                meal = oldMeal
-                    ?: Meal(
-                        UUID.randomUUID(),
-                        0,
-                        "breast",
-                        mealStart,
-                        "",
-                        "oldMeal.comment",
-                        listOf()
-                    )
+                meal = newMeal,
+                lastMeal = newMeal
             )
         }
     }
@@ -212,7 +211,7 @@ class AddMealViewModel : ViewModel() {
                     )
                 } else {
                     oldMeal
-                }
+                },
             )
         }
     }
@@ -227,8 +226,12 @@ class AddMealViewModel : ViewModel() {
 
 
         _uiState.update {
-            currentState -> currentState.copy(
-                meal = null
+
+            currentState ->
+            val lastMeal = currentState.meal
+            currentState.copy(
+                meal = null,
+                lastMeal = lastMeal
             )
         }
     }
@@ -300,4 +303,5 @@ data class AddMealUiState(
     val meal: Meal?,
     val feeding: Boolean,
     val start: ZonedDateTime,
+    val lastMeal: Meal?
 )
