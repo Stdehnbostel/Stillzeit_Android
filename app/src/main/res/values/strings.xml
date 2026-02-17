@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Stillzeit</string>
-    <string name="start_time">Start: %s</string>
-    <string name="end_time">Ende: %s</string>
     <string name="timestamp_button">%s</string>
     <string name="finish_meal_button">Stillmahlzeit abschließen</string>
     <string name="left_feeding_button_name">Links</string>
     <string name="right_feeding_button_name">Rechts</string>
+    <string name="add_manually">manuell Hinzufügen</string>
+    <string name="start_end">Start: %s Uhr - Ende: %s Uhr</string>
 </resources>

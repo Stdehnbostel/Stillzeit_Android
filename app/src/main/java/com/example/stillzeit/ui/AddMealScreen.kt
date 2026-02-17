@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,6 +73,14 @@ fun AddMealScreen(
             mealEndText,
             modifier = modifier
         )
+        OutlinedButton(onClick = { }, modifier = modifier) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Plus Symbol",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text(stringResource(R.string.add_manually))
+        }
     }
 }
 
@@ -119,14 +131,9 @@ fun LastFeeding(
     mealEndText: String,
     modifier: Modifier = Modifier
 ) {
-    DisplayTimeText(
-        prefix = R.string.start_time,
-        timeString = mealStartText,
-        modifier = Modifier
-    )
-    DisplayTimeText(
-        prefix = R.string.end_time,
-        timeString = mealEndText,
+    DisplayMealTimeText(
+        startTimeString = mealStartText,
+        endTimeString = mealEndText,
         modifier = Modifier
     )
 }
@@ -181,12 +188,12 @@ fun DynamicTimer(
 }
 
 @Composable
-fun DisplayTimeText(
-    @StringRes prefix: Int,
-    timeString: String,
+fun DisplayMealTimeText(
+    startTimeString: String,
+    endTimeString: String,
     modifier: Modifier = Modifier) {
     Text(
-        text = stringResource(prefix, timeString),
+        text = stringResource(R.string.start_end, startTimeString, endTimeString),
         modifier = modifier
     )
 }
