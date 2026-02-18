@@ -2,12 +2,14 @@ package com.example.stillzeit.ui
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.data.BreastFeedingDetailEntity
 import com.example.stillzeit.data.FeedingEntity
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.MealType
 import com.example.stillzeit.data.Side
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,16 +23,24 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.UUID
 import kotlin.time.toKotlinDuration
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class AddMealViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
-        AddMealUiState(null, false,getSystemTimeStamp(), null)
+        AddMealUiState(
+            null,
+            false,
+            getSystemTimeStamp(),
+            null,
+            "00:00:00",
+            "00:00:00")
     )
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
+    private var timerJob: Job? = null
 
-    fun processTimestampButton(side: Side): String {
-        val durationString: String
+    fun processTimestampButton(side: Side) {
         val now = getSystemTimeStamp()
         val currentSide = getLastFeeding()?.detail?.side
 
@@ -43,32 +53,29 @@ class AddMealViewModel : ViewModel() {
             val startTimeString = createTimeStringForDatabase(now)
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, side)
-            durationString = updateTimeString()
         }
         else if (currentSide != side) {
             val endTimeString = createTimeStringForDatabase(now)
-
-            if (currentSide == null) return "Error"
+            // Error Handling implementieren
+            if (currentSide == null) return
 
             endFeeding(endTimeString)
-            val newSide = if (currentSide == Side.LEFT) { Side.RIGHT } else if (currentSide == Side.RIGHT) { Side.LEFT } else { return "error" }
+            // Error Handling implementieren
+            val newSide = if (currentSide == Side.LEFT) { Side.RIGHT } else if (currentSide == Side.RIGHT) { Side.LEFT } else { return }
             _uiState.update { currentState ->
                 currentState.copy(
                     start = now
                 )
             }
-            durationString = createDurationString(_uiState.value.start, now, newSide)
             val startTimeString = createTimeStringForDatabase(now)
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, newSide)
         } else {
             val endTimeString = createTimeStringForDatabase(now)
-
-            if (currentSide == null) return "Error"
-            durationString = createDurationString(_uiState.value.start, now, currentSide)
+            // Error Handling implementieren
+            if (currentSide == null) return
             endFeeding(endTimeString)
         }
-        return durationString
     }
 
     fun endFeeding(end: String) {
@@ -77,6 +84,7 @@ class AddMealViewModel : ViewModel() {
         val lastFeeding = feedings[index]
         val updatedFeedingDetail = BreastFeedingDetailEntity(lastFeeding.detail.feedingId, lastFeeding.detail.start, end, false, lastFeeding.detail.side)
         updateLastFeeding(BreastFeeding(lastFeeding.feeding, updatedFeedingDetail))
+        stopTimer()
         _uiState.update {
                 currentState ->
             currentState.copy(
@@ -96,10 +104,25 @@ class AddMealViewModel : ViewModel() {
         addFeedingToMeal(breastFeeding)
         _uiState.update {
             currentState ->
-            currentState.copy(
-                feeding = true
-            )
+            when (side) {
+                Side.LEFT -> {
+                    currentState.copy(
+                        feeding = true,
+                        leftDurationString = updateTimeString(side = Side.LEFT)
+                    )
+                }
+                Side.RIGHT -> {
+                    currentState.copy(
+                        feeding = true,
+                        rightDurationString = updateTimeString(side = Side.RIGHT)
+                    )
+                }
+                Side.EMPTY -> {
+                    currentState.copy()
+                }
+            }
         }
+        startTimer()
     }
 
     fun updateLastFeeding(feeding: BreastFeeding) {
@@ -231,7 +254,9 @@ class AddMealViewModel : ViewModel() {
             val lastMeal = currentState.meal
             currentState.copy(
                 meal = null,
-                lastMeal = lastMeal
+                lastMeal = lastMeal,
+                rightDurationString = "00:00:00",
+                leftDurationString = "00:00:00"
             )
         }
     }
@@ -291,11 +316,42 @@ class AddMealViewModel : ViewModel() {
         return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
     }
 
-    fun updateTimeString(): String {
-        val now = getSystemTimeStamp()
+    fun updateTimeString(now: ZonedDateTime = getSystemTimeStamp() , side: Side): String {
         if (_uiState.value.meal == null) return "00:00:00"
-        val currentSide = getLastFeeding()?.detail?.side ?: return "Error"
-        return createDurationString(_uiState.value.start, now, currentSide)
+        return createDurationString(_uiState.value.start, now, side)
+    }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                updateTimer()
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    private fun updateTimer() {
+        val now = getSystemTimeStamp()
+        _uiState.update { currentState ->
+            val lastFeedingSide = getLastFeeding()?.detail?.side
+            when (lastFeedingSide) {
+                Side.LEFT -> {
+                    currentState.copy(leftDurationString = updateTimeString(now, Side.LEFT))
+                }
+                Side.RIGHT -> {
+                    currentState.copy(rightDurationString = updateTimeString(now, Side.RIGHT))
+                }
+                else -> {
+                    currentState.copy()
+                }
+            }
+        }
     }
 }
 
@@ -303,5 +359,7 @@ data class AddMealUiState(
     val meal: Meal?,
     val feeding: Boolean,
     val start: ZonedDateTime,
-    val lastMeal: Meal?
+    val lastMeal: Meal?,
+    val leftDurationString: String,
+    val rightDurationString: String
 )

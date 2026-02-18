@@ -63,9 +63,8 @@ fun AddMealScreen(
         MeasureFeedingTime(
             viewModel::endMeal,
             viewModel::processTimestampButton,
-            viewModel::updateTimeString,
-            uiState.feeding,
-            viewModel.getLastFeeding()?.detail?.side?.side ?: Side.EMPTY.side,
+            uiState.leftDurationString,
+            uiState.rightDurationString,
             modifier = modifier
         )
         LastFeeding(
@@ -88,10 +87,9 @@ fun AddMealScreen(
 @Composable
 fun MeasureFeedingTime(
     endMeal: () -> Unit,
-    processTimestampButton: (Side) -> String,
-    createDurationString: () -> String,
-    feeding: Boolean,
-    lastFeedingSide: String,
+    processTimestampButton: (Side) -> Unit,
+    leftDurationString: String,
+    rightDurationString: String,
     modifier: Modifier = Modifier
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,16 +105,14 @@ fun MeasureFeedingTime(
                 R.string.left_feeding_button_name,
                 Side.LEFT,
                 processTimestampButton,
-                createDurationString,
-                feeding && (lastFeedingSide == "left"),
+                leftDurationString,
                 modifier = modifier
             )
             DynamicTimer(
                 R.string.right_feeding_button_name,
                 Side.RIGHT,
                 processTimestampButton,
-                createDurationString,
-                feeding && (lastFeedingSide == "right"),
+                rightDurationString,
                 modifier = modifier)
         }
         Button(onClick = endMeal) {
@@ -143,22 +139,10 @@ fun LastFeeding(
 fun DynamicTimer(
     @StringRes sideString: Int,
     side: Side,
-    processTimestampButton: (Side) -> String,
-    createDurationString: () -> String,
-    feeding: Boolean,
+    processTimestampButton: (Side) -> Unit,
+    durationString: String,
     modifier: Modifier = Modifier
 ) {
-    var durationString by rememberSaveable { mutableStateOf("00:00:00") }
-
-    // Einfache Timer Implementierung. Muss später angepasst werden.
-    LaunchedEffect(feeding) {
-        Log.d("coroutineContext", "started Timer")
-        while (feeding) {
-            durationString = updateTimeString(createDurationString)
-            Log.d("coroutineContext", "updated Timer")
-        }
-        Log.d("coroutineContext", "ended Timer")
-    }
 
     Column(
         modifier = modifier,
@@ -166,7 +150,7 @@ fun DynamicTimer(
     ) {
         Button(
             onClick = {
-                durationString = processTimestampButton(side)
+                processTimestampButton(side)
             },
             modifier = Modifier
                 /*
@@ -207,9 +191,4 @@ fun AppPreview() {
             modifier = Modifier.fillMaxSize()
             )
     }
-}
-
-suspend fun updateTimeString(createDurationString: () -> String): String {
-    delay(500)
-    return createDurationString()
 }
