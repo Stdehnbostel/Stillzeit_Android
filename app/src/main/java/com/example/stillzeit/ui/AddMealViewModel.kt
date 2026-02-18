@@ -1,8 +1,10 @@
 package com.example.stillzeit.ui
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stillzeit.R
 import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.data.BreastFeedingDetailEntity
 import com.example.stillzeit.data.FeedingEntity
@@ -34,7 +36,9 @@ class AddMealViewModel : ViewModel() {
             getSystemTimeStamp(),
             null,
             "00:00:00",
-            "00:00:00")
+            "00:00:00",
+            ""
+        )
     )
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
@@ -53,15 +57,20 @@ class AddMealViewModel : ViewModel() {
             val startTimeString = createTimeStringForDatabase(now)
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, side)
-        }
-        else if (currentSide != side) {
+        } else if (currentSide != side) {
             val endTimeString = createTimeStringForDatabase(now)
             // Error Handling implementieren
             if (currentSide == null) return
 
             endFeeding(endTimeString)
             // Error Handling implementieren
-            val newSide = if (currentSide == Side.LEFT) { Side.RIGHT } else if (currentSide == Side.RIGHT) { Side.LEFT } else { return }
+            val newSide = if (currentSide == Side.LEFT) {
+                Side.RIGHT
+            } else if (currentSide == Side.RIGHT) {
+                Side.LEFT
+            } else {
+                return
+            }
             _uiState.update { currentState ->
                 currentState.copy(
                     start = now
@@ -82,11 +91,16 @@ class AddMealViewModel : ViewModel() {
         val feedings = _uiState.value.meal?.breastFeedings ?: return
         val index = feedings.size - 1
         val lastFeeding = feedings[index]
-        val updatedFeedingDetail = BreastFeedingDetailEntity(lastFeeding.detail.feedingId, lastFeeding.detail.start, end, false, lastFeeding.detail.side)
+        val updatedFeedingDetail = BreastFeedingDetailEntity(
+            lastFeeding.detail.feedingId,
+            lastFeeding.detail.start,
+            end,
+            false,
+            lastFeeding.detail.side
+        )
         updateLastFeeding(BreastFeeding(lastFeeding.feeding, updatedFeedingDetail))
         stopTimer()
-        _uiState.update {
-                currentState ->
+        _uiState.update { currentState ->
             currentState.copy(
                 feeding = false
             )
@@ -98,12 +112,16 @@ class AddMealViewModel : ViewModel() {
             setMealStart(start)
         }
 
-        val feeding = FeedingEntity(id.toString(), 0, MealType.BREAST, _uiState.value.meal?.uuid.toString() ?: return)
+        val feeding = FeedingEntity(
+            id.toString(),
+            0,
+            MealType.BREAST,
+            _uiState.value.meal?.uuid.toString() ?: return
+        )
         val detail = BreastFeedingDetailEntity(id.toString(), start, null, true, side)
         val breastFeeding = BreastFeeding(feeding, detail)
         addFeedingToMeal(breastFeeding)
-        _uiState.update {
-            currentState ->
+        _uiState.update { currentState ->
             when (side) {
                 Side.LEFT -> {
                     currentState.copy(
@@ -111,12 +129,14 @@ class AddMealViewModel : ViewModel() {
                         leftDurationString = updateTimeString(side = Side.LEFT)
                     )
                 }
+
                 Side.RIGHT -> {
                     currentState.copy(
                         feeding = true,
                         rightDurationString = updateTimeString(side = Side.RIGHT)
                     )
                 }
+
                 Side.EMPTY -> {
                     currentState.copy()
                 }
@@ -179,13 +199,14 @@ class AddMealViewModel : ViewModel() {
 
     fun setMealStart(mealStart: String) {
         _uiState.update { currentState ->
-            val newMeal = Meal(UUID.randomUUID(),
-            0,
-            "breast",
-            mealStart,
-            "",
-            "",
-            listOf()
+            val newMeal = Meal(
+                UUID.randomUUID(),
+                0,
+                "breast",
+                mealStart,
+                "",
+                "",
+                listOf()
             )
             currentState.copy(
                 meal = newMeal,
@@ -197,13 +218,11 @@ class AddMealViewModel : ViewModel() {
     fun getAccumulatedDuration(side: Side): kotlin.time.Duration {
         val feedings = _uiState.value.meal?.breastFeedings ?: return kotlin.time.Duration.ZERO
 
-        val filteredFeedings = feedings.filter {
-            feeding ->
+        val filteredFeedings = feedings.filter { feeding ->
             feeding.detail.side == side && !feeding.detail.active
         }
 
-        val feedingTimes = filteredFeedings.map {
-            feeding ->
+        val feedingTimes = filteredFeedings.map { feeding ->
             val start = ZonedDateTime.parse(feeding.detail.start)
             val end = ZonedDateTime.parse(feeding.detail.end)
             return@map calculateDuration(start, end)
@@ -250,7 +269,7 @@ class AddMealViewModel : ViewModel() {
 
         _uiState.update {
 
-            currentState ->
+                currentState ->
             val lastMeal = currentState.meal
             currentState.copy(
                 meal = null,
@@ -305,7 +324,11 @@ class AddMealViewModel : ViewModel() {
 
     // Für das Label des Buttons. Später soll die Anzeige laufend aktualisiert werden.
     @VisibleForTesting
-    internal fun createDurationString(start: ZonedDateTime, end: ZonedDateTime, side: Side): String {
+    internal fun createDurationString(
+        start: ZonedDateTime,
+        end: ZonedDateTime,
+        side: Side
+    ): String {
         val duration = calculateDuration(start, end) + getAccumulatedDuration(side)
         var seconds = duration.inWholeSeconds
         val hours = seconds / 3600
@@ -313,10 +336,12 @@ class AddMealViewModel : ViewModel() {
         val minutes = seconds / 60
         seconds -= minutes * 60
 
-        return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+        return "${hours.toString().padStart(2, '0')}:${
+            minutes.toString().padStart(2, '0')
+        }:${seconds.toString().padStart(2, '0')}"
     }
 
-    fun updateTimeString(now: ZonedDateTime = getSystemTimeStamp() , side: Side): String {
+    fun updateTimeString(now: ZonedDateTime = getSystemTimeStamp(), side: Side): String {
         if (_uiState.value.meal == null) return "00:00:00"
         return createDurationString(_uiState.value.start, now, side)
     }
@@ -344,14 +369,33 @@ class AddMealViewModel : ViewModel() {
                 Side.LEFT -> {
                     currentState.copy(leftDurationString = updateTimeString(now, Side.LEFT))
                 }
+
                 Side.RIGHT -> {
                     currentState.copy(rightDurationString = updateTimeString(now, Side.RIGHT))
                 }
+
                 else -> {
                     currentState.copy()
                 }
             }
         }
+    }
+
+    private fun updateLastMealTimeString(): String {
+        if (_uiState.value.lastMeal == null) return ""
+        val now = getSystemTimeStamp()
+        val mealEnd = ZonedDateTime.parse(_uiState.value.lastMeal?.end)
+        val  duration = calculateDuration(mealEnd, now)
+        var seconds = duration.inWholeSeconds
+        val hours = seconds / 3600
+        seconds -= hours * 3600
+        val minutes = seconds / 60
+        seconds -= minutes * 60
+
+        return "vor: ${hours.toString().padStart(2, '0')}:${
+            minutes.toString().padStart(2, '0')
+        }:${seconds.toString().padStart(2, '0')}"
+
     }
 }
 
@@ -361,5 +405,6 @@ data class AddMealUiState(
     val start: ZonedDateTime,
     val lastMeal: Meal?,
     val leftDurationString: String,
-    val rightDurationString: String
+    val rightDurationString: String,
+    val lastMealTimeString: String,
 )
