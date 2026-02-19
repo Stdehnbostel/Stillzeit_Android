@@ -70,7 +70,8 @@ fun AddMealScreen(
         LastFeeding(
             mealStartText,
             mealEndText,
-            modifier = modifier
+            lastMealTimeString = uiState.lastMealTimeString,
+            modifier = Modifier
         )
         OutlinedButton(onClick = { }, modifier = modifier) {
             Icon(
@@ -125,12 +126,17 @@ fun MeasureFeedingTime(
 fun LastFeeding(
     mealStartText: String,
     mealEndText: String,
+    lastMealTimeString: String,
     modifier: Modifier = Modifier
 ) {
+    Text(
+        text = if (lastMealTimeString == "") stringResource(R.string.no_meals_found) else stringResource(R.string.last_meal, lastMealTimeString),
+        modifier = modifier
+    )
     DisplayMealTimeText(
         startTimeString = mealStartText,
         endTimeString = mealEndText,
-        modifier = Modifier
+        modifier = modifier
     )
 }
 

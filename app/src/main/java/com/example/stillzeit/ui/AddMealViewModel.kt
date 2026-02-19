@@ -42,7 +42,13 @@ class AddMealViewModel : ViewModel() {
     )
 
     val uiState: StateFlow<AddMealUiState> = _uiState.asStateFlow()
-    private var timerJob: Job? = null
+    private var timerJob: Job = viewModelScope.launch {
+        while (true) {
+            delay(1000)
+            updateTimer()
+            updateLastMealTimeString()
+        }
+    }
 
     fun processTimestampButton(side: Side) {
         val now = getSystemTimeStamp()
@@ -99,7 +105,6 @@ class AddMealViewModel : ViewModel() {
             lastFeeding.detail.side
         )
         updateLastFeeding(BreastFeeding(lastFeeding.feeding, updatedFeedingDetail))
-        stopTimer()
         _uiState.update { currentState ->
             currentState.copy(
                 feeding = false
@@ -142,7 +147,7 @@ class AddMealViewModel : ViewModel() {
                 }
             }
         }
-        startTimer()
+        // startTimer()
     }
 
     fun updateLastFeeding(feeding: BreastFeeding) {
@@ -204,7 +209,7 @@ class AddMealViewModel : ViewModel() {
                 0,
                 "breast",
                 mealStart,
-                "",
+                null,
                 "",
                 listOf()
             )
@@ -346,21 +351,6 @@ class AddMealViewModel : ViewModel() {
         return createDurationString(_uiState.value.start, now, side)
     }
 
-    private fun startTimer() {
-        timerJob?.cancel()
-        timerJob = viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                updateTimer()
-            }
-        }
-    }
-
-    private fun stopTimer() {
-        timerJob?.cancel()
-        timerJob = null
-    }
-
     private fun updateTimer() {
         val now = getSystemTimeStamp()
         _uiState.update { currentState ->
@@ -381,21 +371,30 @@ class AddMealViewModel : ViewModel() {
         }
     }
 
-    private fun updateLastMealTimeString(): String {
+    private fun updateLastMealTimeString() {
+        _uiState.update {
+            currentState ->
+            currentState.copy(
+                lastMealTimeString = createLastMealTimeString()
+            )
+        }
+    }
+
+    private fun createLastMealTimeString(): String {
         if (_uiState.value.lastMeal == null) return ""
         val now = getSystemTimeStamp()
-        val mealEnd = ZonedDateTime.parse(_uiState.value.lastMeal?.end)
-        val  duration = calculateDuration(mealEnd, now)
+        val mealEndString = _uiState.value.lastMeal?.end ?: return "0"
+        val mealEnd = ZonedDateTime.parse(mealEndString)
+        val duration = calculateDuration(mealEnd, now)
         var seconds = duration.inWholeSeconds
         val hours = seconds / 3600
         seconds -= hours * 3600
         val minutes = seconds / 60
         seconds -= minutes * 60
 
-        return "vor: ${hours.toString().padStart(2, '0')}:${
+        return "${hours.toString().padStart(2, '0')}:${
             minutes.toString().padStart(2, '0')
         }:${seconds.toString().padStart(2, '0')}"
-
     }
 }
 
