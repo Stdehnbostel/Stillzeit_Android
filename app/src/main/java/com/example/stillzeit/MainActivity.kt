@@ -7,11 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,26 +62,36 @@ fun NavigationTabs(
     var startDestination = Destination.ADD_MEALS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        PrimaryTabRow(selectedTabIndex = selectedDestination, modifier = Modifier.padding(innerPadding)) {
-            Destination.entries.forEachIndexed { index, destination ->
-                Tab(
-                    selected = selectedDestination == index,
-                    onClick = {
-                        navController.navigate(route = destination.route)
-                        selectedDestination = index
-                    },
-                    text = {
-                        Text(
-                            text = destination.label,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                )
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            NavigationBar {
+                Destination.entries.forEachIndexed { index, destination ->
+                    NavigationBarItem(
+                        selected = selectedDestination == index,
+                        onClick = {
+                            navController.navigate(route = destination.route)
+                            selectedDestination = index
+                        },
+                        label = {
+                            Text(
+                                text = destination.label,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = destination.icon,
+                                contentDescription = destination.contentDescription
+                            )
+                        }
+                    )
+                }
             }
         }
-        AppNavHost(navController, startDestination)
+    ) { innerPadding ->
+        AppNavHost(navController, startDestination, Modifier.padding(innerPadding))
     }
 }
 

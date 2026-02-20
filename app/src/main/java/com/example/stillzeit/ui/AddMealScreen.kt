@@ -57,6 +57,7 @@ fun AddMealScreen(
         end
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
             .fillMaxWidth()
     ) {
@@ -65,7 +66,7 @@ fun AddMealScreen(
             viewModel::processTimestampButton,
             uiState.leftDurationString,
             uiState.rightDurationString,
-            modifier = modifier
+            modifier = Modifier.padding(8.dp)
         )
         LastFeeding(
             mealStartText,
@@ -131,18 +132,23 @@ fun LastFeeding(
     durationString: String = "",
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = if (lastMealTimeString == "") stringResource(R.string.no_meals_found) else stringResource(R.string.last_meal, lastMealTimeString),
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
-    )
-    DisplayMealTimeText(
-        startTimeString = mealStartString,
-        endTimeString = mealEndString,
-        modifier = modifier
-    )
-    Text(
-        text = stringResource(R.string.meal_duration, durationString)
-    )
+    ) {
+        Text(
+            text = if (lastMealTimeString == "") stringResource(R.string.no_meals_found) else stringResource(R.string.last_meal, lastMealTimeString),
+            modifier = modifier
+        )
+        DisplayMealTimeText(
+            startTimeString = mealStartString,
+            endTimeString = mealEndString,
+            modifier = modifier
+        )
+        Text(
+            text = stringResource(R.string.meal_duration, durationString)
+        )
+    }
 }
 
 // runder Button mit Timer
