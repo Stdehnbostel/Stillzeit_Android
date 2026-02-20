@@ -1,9 +1,12 @@
 package com.example.stillzeit.data
 
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlin.uuid.ExperimentalUuidApi
+import java.time.ZonedDateTime
 import java.util.UUID
+import java.time.Duration
+import kotlin.time.toKotlinDuration
 
 enum class MealType(value: String) {
     BREAST("breast"),
@@ -24,4 +27,23 @@ data class Meal (
     // var bottleFeedings: List<BottleFeeding> = emptyList(),
     // var otherFeedings: List<OtherFeeding> = emptyList(),
     // var pumpings: List<Pumping> = emptyList()
-)
+) {
+    fun duration(): kotlin.time.Duration {
+        val end = end?.let { ZonedDateTime.parse(it) } ?: ZonedDateTime.now()
+        val start = ZonedDateTime.parse(start)
+        return Duration.between(start, end).toKotlinDuration()
+    }
+
+    fun formattedDuration(): String {
+        val duration = duration()
+        val hours = duration.inWholeHours
+        val minutes = duration.inWholeMinutes % 60
+        val seconds = duration.inWholeSeconds % 60
+        val postFix = if (hours > 0) "h" else if (minutes > 0) "min" else "s"
+        val hoursString = if (hours > 0) "$hours:" else ""
+        val minutesString = if (minutes > 0 || hours > 0) "$minutes:" else ""
+        val secondsString = if (hours == 0L && minutes > 0 && seconds < 10) "0$seconds" else if (hours == 0L) "$seconds" else ""
+        Log.v("duration", "$hours $minutes $seconds $postFix")
+        return "$hoursString$minutesString$secondsString $postFix"
+    }
+}

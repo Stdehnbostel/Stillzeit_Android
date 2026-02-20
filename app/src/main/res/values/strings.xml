@@ -8,4 +8,5 @@
     <string name="start_end">Start: %s Uhr - Ende: %s Uhr</string>
     <string name="last_meal">letzte: vor %s</string>
     <string name="no_meals_found">letzte: keine Mahlzeiten gefunden</string>
+    <string name="meal_duration">Dauer: %s</string>
 </resources>

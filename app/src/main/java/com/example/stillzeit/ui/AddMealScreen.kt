@@ -71,6 +71,7 @@ fun AddMealScreen(
             mealStartText,
             mealEndText,
             lastMealTimeString = uiState.lastMealTimeString,
+            durationString = uiState.lastMeal?.formattedDuration() ?: "-",
             modifier = Modifier
         )
         OutlinedButton(onClick = { }, modifier = modifier) {
@@ -124,9 +125,10 @@ fun MeasureFeedingTime(
 
 @Composable
 fun LastFeeding(
-    mealStartText: String,
-    mealEndText: String,
-    lastMealTimeString: String,
+    mealStartString: String = "",
+    mealEndString: String = "",
+    lastMealTimeString: String = "",
+    durationString: String = "",
     modifier: Modifier = Modifier
 ) {
     Text(
@@ -134,9 +136,12 @@ fun LastFeeding(
         modifier = modifier
     )
     DisplayMealTimeText(
-        startTimeString = mealStartText,
-        endTimeString = mealEndText,
+        startTimeString = mealStartString,
+        endTimeString = mealEndString,
         modifier = modifier
+    )
+    Text(
+        text = stringResource(R.string.meal_duration, durationString)
     )
 }
 
