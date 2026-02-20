@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.time.Duration
+import java.time.format.DateTimeFormatter
 import kotlin.time.toKotlinDuration
 
 enum class MealType(value: String) {
@@ -43,7 +44,18 @@ data class Meal (
         val hoursString = if (hours > 0) "$hours:" else ""
         val minutesString = if (minutes > 0 || hours > 0) "$minutes:" else ""
         val secondsString = if (hours == 0L && minutes > 0 && seconds < 10) "0$seconds" else if (hours == 0L) "$seconds" else ""
-        Log.v("duration", "$hours $minutes $seconds $postFix")
+
         return "$hoursString$minutesString$secondsString $postFix"
+    }
+
+    fun formattedStartTime(): String {
+        val startTime = ZonedDateTime.parse(start)
+        return startTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
+
+    fun formattedEndTime(): String {
+        val endTime: ZonedDateTime? = end?.let { ZonedDateTime.parse(it) } ?: null
+        return endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: ""
+
     }
 }
