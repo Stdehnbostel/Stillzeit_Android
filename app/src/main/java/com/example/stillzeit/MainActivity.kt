@@ -29,8 +29,10 @@ import androidx.navigation.compose.composable
 import androidx.room.Room
 import com.example.stillzeit.data.AppDatabase
 import com.example.stillzeit.ui.AddMealScreen
+import com.example.stillzeit.ui.AddMealViewModel
 import com.example.stillzeit.ui.Destination
 import com.example.stillzeit.ui.ProtocolScreen
+import com.example.stillzeit.ui.ProtocolViewModel
 import com.example.stillzeit.ui.theme.StillzeitTheme
 
 class MainActivity : ComponentActivity() {
@@ -109,10 +111,13 @@ fun AppNavHost(
             composable(destination.route) {
                 when (destination) {
                     Destination.ADD_MEALS -> AddMealScreen(
-                        viewModel = viewModel(),
+                        viewModel = viewModel(factory = AddMealViewModel.Factory),
                         modifier = modifier
                     )
-                    Destination.PROTOCOL -> ProtocolScreen()
+                    Destination.PROTOCOL -> ProtocolScreen(
+                        viewModel = viewModel(factory = ProtocolViewModel.Factory),
+                        modifier = modifier
+                    )
                 }
             }
         }

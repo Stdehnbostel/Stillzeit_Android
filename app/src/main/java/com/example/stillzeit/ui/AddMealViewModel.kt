@@ -1,15 +1,19 @@
 package com.example.stillzeit.ui
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import com.example.stillzeit.R
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.stillzeit.StillzeitApplication
 import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.data.BreastFeedingDetailEntity
 import com.example.stillzeit.data.FeedingEntity
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.MealType
+import com.example.stillzeit.data.MealsRepository
 import com.example.stillzeit.data.Side
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +32,7 @@ import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AddMealViewModel : ViewModel() {
+class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(
         AddMealUiState(
             null,
@@ -47,6 +51,16 @@ class AddMealViewModel : ViewModel() {
             delay(1000)
             updateTimer()
             updateLastMealTimeString()
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as StillzeitApplication)
+                val mealsRepository = application.container.mealsRepository
+                AddMealViewModel(repository = mealsRepository)
+            }
         }
     }
 
@@ -268,10 +282,8 @@ class AddMealViewModel : ViewModel() {
         val endFeedingTimeString = createTimeStringForDatabase(now)
         endFeeding(endFeedingTimeString)
 
-        // In Datenbank speichern
-        /* TODO */
-
-
+        val meal = _uiState.value.meal ?: return
+        addMeal(meal)
         _uiState.update {
 
                 currentState ->
@@ -284,6 +296,13 @@ class AddMealViewModel : ViewModel() {
             )
         }
     }
+
+    fun addMeal(meal: Meal) {
+        viewModelScope.launch {
+            repository.addMeal(meal)
+        }
+    }
+
 
     @VisibleForTesting
     internal fun getSystemTimeStamp(): ZonedDateTime {

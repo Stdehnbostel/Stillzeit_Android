@@ -4,15 +4,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.stillzeit.R
 import com.example.stillzeit.data.Meal
 
 @Composable
-fun ProtocolScreen() {
+fun ProtocolScreen(
+    viewModel: ProtocolViewModel,
+    modifier: Modifier
+) {
+    val uiState = viewModel.uiState.collectAsState()
     MealList(
-        meals = listOf(),
+        meals = uiState.value.meals,
         modifier = Modifier
     )
 }
