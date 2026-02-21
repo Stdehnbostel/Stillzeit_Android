@@ -93,7 +93,7 @@ fun NavigationTabs(
             }
         }
     ) { innerPadding ->
-        AppNavHost(navController, startDestination, Modifier.padding(innerPadding))
+        AppNavHost(navController, startDestination, modifier.padding(innerPadding))
     }
 }
 

@@ -58,7 +58,7 @@ fun AddMealScreen(
             viewModel::processTimestampButton,
             uiState.leftDurationString,
             uiState.rightDurationString,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(vertical = 8.dp)
         )
         LastFeeding(
             mealStartText,
