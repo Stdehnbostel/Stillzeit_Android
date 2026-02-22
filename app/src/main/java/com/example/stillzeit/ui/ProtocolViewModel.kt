@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.DayOfWeek
+import java.time.ZonedDateTime
 
 class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
     val uiState: StateFlow<ProtocolUiState> = repository.getMeals()
@@ -24,6 +26,30 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ProtocolUiState(emptyList())
         )
+
+    var endOfSelectedWeek: ZonedDateTime = if (ZonedDateTime.now().dayOfWeek == DayOfWeek.SUNDAY) {
+        ZonedDateTime.now()
+    } else {
+        ZonedDateTime.now().plusDays(7 - ZonedDateTime.now().dayOfWeek.value.toLong())
+    }
+
+    var startOfSelectedWeek = getStartOfWeek(endOfSelectedWeek)
+
+    fun getFormattedEndOfSelectedWeek(): String {
+        return endOfSelectedWeek.toLocalDate().toString()
+    }
+
+    fun getFormattedStartOfSelectedWeek(): String {
+        return startOfSelectedWeek.toLocalDate().toString()
+    }
+
+
+    private fun getStartOfWeek(end: ZonedDateTime): ZonedDateTime {
+        val start = end.minusDays(7)
+        return start
+    }
+
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -37,5 +63,5 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
 }
 
 data class ProtocolUiState(
-    val meals: List<Meal>,
+    val meals: List<Meal>
 )

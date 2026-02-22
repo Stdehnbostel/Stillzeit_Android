@@ -16,12 +16,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,6 +73,13 @@ fun NavigationTabs(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    scrolledContainerColor = Color.Unspecified,
+                    navigationIconContentColor = Color.Unspecified,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = Color.Unspecified
+                ),
                 title = {
                     Text(
                         text = stringResource(Destination.entries[selectedDestination].titleRes),

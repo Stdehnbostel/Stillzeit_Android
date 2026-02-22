@@ -12,4 +12,5 @@
     <string name="meal_description">Von %s bis %s\nDauer: %s</string>
     <string name="record_meal">Mahlzeit aufnehmen</string>
     <string name="overview">Übersicht</string>
+    <string name="date_range">Vom %s bis %s</string>
 </resources>
