@@ -10,4 +10,6 @@
     <string name="no_meals_found">letzte: keine Mahlzeiten gefunden</string>
     <string name="meal_duration">Dauer: %s</string>
     <string name="meal_description">Von %s bis %s\nDauer: %s</string>
+    <string name="record_meal">Mahlzeit aufnehmen</string>
+    <string name="overview">Übersicht</string>
 </resources>

@@ -38,7 +38,8 @@ fun MealList(
     ) {
         items(meals) {
             meal -> MealCard(
-            meal, Modifier
+            meal,
+            Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
             )
