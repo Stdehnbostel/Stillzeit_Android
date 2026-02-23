@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -50,7 +51,7 @@ fun AddMealScreen(
         end
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
         modifier = modifier
             .fillMaxWidth()
     ) {
@@ -68,7 +69,7 @@ fun AddMealScreen(
             durationString = uiState.lastMeal?.formattedDuration() ?: "-",
             modifier = Modifier
         )
-        OutlinedButton(onClick = { }, modifier = modifier) {
+        OutlinedButton(onClick = { }, modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Plus Symbol",
@@ -133,14 +134,18 @@ fun LastFeeding(
             text = if (lastMealTimeString == "") stringResource(R.string.no_meals_found) else stringResource(R.string.last_meal, lastMealTimeString),
             modifier = modifier
         )
-        DisplayMealTimeText(
-            startTimeString = mealStartString,
-            endTimeString = mealEndString,
-            modifier = modifier
-        )
-        Text(
-            text = stringResource(R.string.meal_duration, durationString)
-        )
+        Card(modifier = modifier.fillMaxWidth()) {
+            Column(modifier.padding(8.dp)) {
+                DisplayMealTimeText(
+                    startTimeString = mealStartString,
+                    endTimeString = mealEndString,
+                    modifier = modifier
+                )
+                Text(
+                    text = stringResource(R.string.meal_duration, durationString)
+                )
+            }
+        }
     }
 }
 
