@@ -67,7 +67,7 @@ fun AddMealScreen(
             mealEndText,
             lastMealTimeString = uiState.lastMealTimeString,
             durationString = uiState.lastMeal?.formattedDuration() ?: "-",
-            modifier = Modifier
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
         OutlinedButton(onClick = { }, modifier = Modifier) {
             Icon(
