@@ -58,4 +58,29 @@ data class Meal (
         return endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: ""
 
     }
+
+    fun toMealEntity(): MealEntity {
+        return MealEntity(
+            uuid = uuid,
+            numberOfFeedings = numberOfFeedings,
+            type = type,
+            start = start,
+            end = end,
+            lastModified = ZonedDateTime.now().toString(),
+            comment = comment,
+            babyId = null
+        )
+    }
+}
+
+fun MealEntity.toMeal(): Meal {
+    return Meal(
+        uuid = uuid,
+        numberOfFeedings = numberOfFeedings,
+        type = type,
+        start = start,
+        end = end,
+        comment = comment,
+        breastFeedings = emptyList()
+    )
 }

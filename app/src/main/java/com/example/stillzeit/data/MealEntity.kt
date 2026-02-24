@@ -13,5 +13,5 @@ data class MealEntity(
     val end: String?,
     val lastModified: String,
     val comment: String?,
-    val babyId: String?,
+    val babyId: UUID?,
 )

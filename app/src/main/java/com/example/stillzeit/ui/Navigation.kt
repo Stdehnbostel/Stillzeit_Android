@@ -10,10 +10,10 @@ import com.example.stillzeit.R
 enum class Destination(
     val route: String,
     @StringRes val titleRes: Int,
-    val label: String,
+    @StringRes val label: Int,
     val icon: ImageVector,
     val contentDescription: String
 ) {
-    ADD_MEALS("addmeals", R.string.record_meal, "Add Meals", Icons.Default.Add, "Add Meals"),
-    PROTOCOL("protocl", R.string.overview, "Protocol", Icons.Default.List, "Protocol"),
+    ADD_MEALS("addmeals", R.string.record_meal, R.string.record_meal_label, Icons.Default.Add, "Add Meals"),
+    PROTOCOL("protocl", R.string.overview, R.string.overview_label, Icons.Default.List, "Protocol"),
 }

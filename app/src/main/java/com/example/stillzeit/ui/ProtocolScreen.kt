@@ -66,7 +66,7 @@ fun ProtocolScreen(
 
         MealList(
             meals = uiState.value.meals,
-            modifier = modifier
+            modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
         )

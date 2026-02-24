@@ -31,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.room.Room
 import com.example.stillzeit.data.AppDatabase
 import com.example.stillzeit.ui.AddMealScreen
 import com.example.stillzeit.ui.AddMealViewModel
@@ -44,10 +43,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
         setContent {
             StillzeitTheme {
                 Surface(
@@ -99,7 +94,7 @@ fun NavigationTabs(
                         },
                         label = {
                             Text(
-                                text = destination.label,
+                                text = stringResource(destination.label),
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )

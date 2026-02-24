@@ -139,7 +139,7 @@ fun LastFeeding(
                 DisplayMealTimeText(
                     startTimeString = mealStartString,
                     endTimeString = mealEndString,
-                    modifier = modifier
+                    modifier = Modifier
                 )
                 Text(
                     text = stringResource(R.string.meal_duration, durationString)
