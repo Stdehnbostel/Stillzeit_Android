@@ -1,5 +1,7 @@
 package com.example.stillzeit.data
 
+import java.util.UUID
+
 sealed interface MealComponent : Comparable<MealComponent>{
     val id: String?
     val intervallTime: Pair<String, String?>
@@ -7,5 +9,5 @@ sealed interface MealComponent : Comparable<MealComponent>{
     val description: String
     val start: String
     val volume: Int
-    val mealId: String
+    val mealId: UUID
 }

@@ -11,6 +11,9 @@ interface FeedingDao {
     @Insert
     suspend fun insert(feeding: FeedingEntity)
 
+    @Insert
+    fun insertAll(vararg feedings: FeedingEntity)
+
     @Query("SELECT * FROM feeding")
     fun getAllFeedings(): Flow<List<FeedingEntity>>
 }

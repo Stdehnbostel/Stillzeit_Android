@@ -31,7 +31,7 @@ data class BreastFeeding(
     override val intervallTime: Pair<String, String?>
         get() = Pair(detail.start, detail.end)
 
-    override val mealId: String
+    override val mealId: UUID
         get() = feeding.mealId
 
     override val start: String

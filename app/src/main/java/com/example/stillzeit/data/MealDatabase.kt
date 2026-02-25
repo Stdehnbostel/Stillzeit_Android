@@ -34,8 +34,9 @@ class Converters {
 @Database(entities = [FeedingEntity::class, BreastFeedingDetailEntity::class, MealEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun breastFeedingDao(): FeedingDao
+    abstract fun feedingDao(): FeedingDao
     abstract fun mealDao(): MealDao
+    abstract fun breastFeedingDao(): BreastFeedingDao
 
     companion object {
         @Volatile

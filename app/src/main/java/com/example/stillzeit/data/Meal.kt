@@ -73,7 +73,7 @@ data class Meal (
     }
 }
 
-fun MealEntity.toMeal(): Meal {
+fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf()): Meal {
     return Meal(
         uuid = uuid,
         numberOfFeedings = numberOfFeedings,

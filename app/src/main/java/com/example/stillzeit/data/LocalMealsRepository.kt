@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class LocalMealsRepository(
     private val mealDao: MealDao,
+    private val breastFeedingDao: BreastFeedingDao,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : MealsRepository {
     private val _meals = MutableStateFlow<List<Meal>>(listOf())
@@ -19,7 +20,9 @@ class LocalMealsRepository(
     init {
         scope.launch {
             val mealEntities = mealDao.getAllMealsWithoutBabyProfile()
-            _meals.value = mealEntities.map { it.toMeal() }
+            _meals.value = mealEntities.map {
+                    it.toMeal(breastFeedingDao.getFeedingsForMeal(it.uuid))
+            }
         }
     }
 
@@ -28,5 +31,8 @@ class LocalMealsRepository(
     override suspend fun addMeal(meal: Meal) {
         _meals.update { currentMeals -> currentMeals + meal }
         mealDao.insert(meal.toMealEntity())
+        for (feeding in meal.breastFeedings) {
+            breastFeedingDao.insert(feeding)
+        }
     }
 }

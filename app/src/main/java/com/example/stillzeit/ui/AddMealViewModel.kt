@@ -84,12 +84,16 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
 
             endFeeding(endTimeString)
             // Error Handling implementieren
-            val newSide = if (currentSide == Side.LEFT) {
-                Side.RIGHT
-            } else if (currentSide == Side.RIGHT) {
-                Side.LEFT
-            } else {
-                return
+            val newSide = when (currentSide) {
+                Side.LEFT -> {
+                    Side.RIGHT
+                }
+                Side.RIGHT -> {
+                    Side.LEFT
+                }
+                else -> {
+                    return
+                }
             }
             _uiState.update { currentState ->
                 currentState.copy(
@@ -135,7 +139,7 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             id.toString(),
             0,
             MealType.BREAST,
-            _uiState.value.meal?.uuid.toString() ?: return
+            _uiState.value.meal?.uuid ?: return
         )
         val detail = BreastFeedingDetailEntity(id.toString(), start, null, true, side)
         val breastFeeding = BreastFeeding(feeding, detail)
