@@ -39,7 +39,7 @@ fun ProtocolScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { viewModel.decrementWeek() },
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -49,13 +49,13 @@ fun ProtocolScreen(
             Text(
                 text = stringResource(
                     R.string.date_range,
-                    viewModel.getFormattedStartOfSelectedWeek(),
-                    viewModel.getFormattedEndOfSelectedWeek()
+                    uiState.value.startOfWeek,
+                    uiState.value.endOfWeek
                 ),
                 style = MaterialTheme.typography.bodyLarge
             )
             IconButton(
-                onClick = { /*TODO*/ }
+                onClick = { viewModel.incrementWeek() }
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

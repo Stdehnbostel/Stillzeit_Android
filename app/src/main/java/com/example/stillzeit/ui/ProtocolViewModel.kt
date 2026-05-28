@@ -10,46 +10,60 @@ import com.example.stillzeit.StillzeitApplication
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.MealsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import java.time.DayOfWeek
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
 class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
-    val uiState: StateFlow<ProtocolUiState> = repository.getMeals()
-        .map { meals -> ProtocolUiState(meals) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ProtocolUiState(emptyList())
-        )
 
-    var endOfSelectedWeek: ZonedDateTime = if (ZonedDateTime.now().dayOfWeek == DayOfWeek.SUNDAY) {
-        ZonedDateTime.now()
-    } else {
-        ZonedDateTime.now().plusDays(7 - ZonedDateTime.now().dayOfWeek.value.toLong())
+    private val _uiState = MutableStateFlow(
+        ProtocolUiState(
+            getFormattedStartOfSelectedWeek(),
+            getFormattedEndOfSelectedWeek(),
+            emptyList()
+        )
+    )
+    val uiState: StateFlow<ProtocolUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.getMeals().collect { meals ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        meals = meals,
+                        startOfWeek = getFormattedStartOfSelectedWeek(),
+                        endOfWeek = getFormattedEndOfSelectedWeek()
+                    )
+                }
+            }
+        }
     }
 
-    var startOfSelectedWeek = getStartOfWeek(endOfSelectedWeek)
-
     fun getFormattedEndOfSelectedWeek(): String {
-        return endOfSelectedWeek.toLocalDate().toString()
+        return repository.getEndOfWeek().toLocalDate().toString()
     }
 
     fun getFormattedStartOfSelectedWeek(): String {
-        return startOfSelectedWeek.toLocalDate().toString()
+        return repository.getEndOfWeek().plusDays(-7).toLocalDate().toString()
     }
 
-
-    private fun getStartOfWeek(end: ZonedDateTime): ZonedDateTime {
-        val start = end.minusDays(7)
-        return start
+    fun incrementWeek() {
+        repository.incrementWeek()
+        _uiState.update { currentState -> currentState.copy(
+            startOfWeek = getFormattedStartOfSelectedWeek(),
+            endOfWeek = getFormattedEndOfSelectedWeek()
+        ) }
     }
 
-
+    fun decrementWeek() {
+        repository.decrementWeek()
+        _uiState.update { currentState -> currentState.copy(
+            startOfWeek = getFormattedStartOfSelectedWeek(),
+            endOfWeek = getFormattedEndOfSelectedWeek()
+        ) }
+    }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -63,5 +77,7 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
 }
 
 data class ProtocolUiState(
+    val startOfWeek: String,
+    val endOfWeek: String,
     val meals: List<Meal>
 )

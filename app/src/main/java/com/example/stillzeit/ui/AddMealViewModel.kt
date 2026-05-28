@@ -74,11 +74,11 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
                     start = now
                 )
             }
-            val startTimeString = createTimeStringForDatabase(now)
+            val startTimeString = repository.createTimeStringForDatabase(now)
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, side)
         } else if (currentSide != side) {
-            val endTimeString = createTimeStringForDatabase(now)
+            val endTimeString = repository.createTimeStringForDatabase(now)
             // Error Handling implementieren
             if (currentSide == null) return
 
@@ -100,11 +100,11 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
                     start = now
                 )
             }
-            val startTimeString = createTimeStringForDatabase(now)
+            val startTimeString = repository.createTimeStringForDatabase(now)
             val id = UUID.randomUUID()
             startFeeding(id, startTimeString, newSide)
         } else {
-            val endTimeString = createTimeStringForDatabase(now)
+            val endTimeString = repository.createTimeStringForDatabase(now)
             // Error Handling implementieren
             if (currentSide == null) return
             endFeeding(endTimeString)
@@ -283,7 +283,7 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
 
     fun endMeal() {
         val now = getSystemTimeStamp()
-        val endFeedingTimeString = createTimeStringForDatabase(now)
+        val endFeedingTimeString = repository.createTimeStringForDatabase(now)
         endFeeding(endFeedingTimeString)
 
         val meal = _uiState.value.meal ?: return
@@ -325,19 +325,6 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
         val formatter = DateTimeFormatter
             .ofLocalizedTime(FormatStyle.MEDIUM) // Dieses Format ist für die Anzeige geeignet.
             // für die Datenbank: .ISO_INSTANT
-            .withLocale(locale)
-        return zonedDateTime.format(formatter)
-    }
-
-    @VisibleForTesting
-    internal fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
-        // DateTimeFormatter erfordert API leven 26.
-        // Da Zeitstemple für diese App von zentraler Bedeutung sind
-        // stellt dies die untere Schrnake der zu Unterstützenden
-        // Android Versionen dar. (Android 8.0)
-        val locale = Locale.GERMANY
-        val formatter = DateTimeFormatter
-            .ISO_INSTANT // Zur Speicherung in der Datenbank wird das .ISO_Instant-Format benötigt
             .withLocale(locale)
         return zonedDateTime.format(formatter)
     }
