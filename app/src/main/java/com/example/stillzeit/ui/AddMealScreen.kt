@@ -13,7 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -32,6 +34,7 @@ import com.example.stillzeit.data.Side
 import com.example.stillzeit.ui.theme.StillzeitTheme
 import java.time.ZonedDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMealScreen(
     viewModel: AddMealViewModel,
@@ -50,6 +53,13 @@ fun AddMealScreen(
     } else {
         end
     }
+
+    if (uiState.showAddManually) {
+        ModalBottomSheet(onDismissRequest = { viewModel.hideAddManually() }) {
+            AddMealManuallyScreen(modifier = Modifier.fillMaxWidth())
+        }
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp),
         modifier = modifier
@@ -69,7 +79,7 @@ fun AddMealScreen(
             durationString = uiState.lastMeal?.formattedDuration() ?: "-",
             modifier = Modifier.padding(horizontal = 8.dp)
         )
-        OutlinedButton(onClick = { }, modifier = Modifier) {
+        OutlinedButton(onClick = {viewModel.showAddMealManually() }, modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Plus Symbol",

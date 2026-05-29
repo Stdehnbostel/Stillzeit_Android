@@ -43,6 +43,10 @@ class LocalMealsRepository(
     }
 
     override fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String {
+        // DateTimeFormatter erfordert API leven 26.
+        // Da Zeitstemple für diese App von zentraler Bedeutung sind
+        // stellt dies die untere Schrnake der zu Unterstützenden
+        // Android Versionen dar. (Android 8.0)
         val locale = Locale.GERMANY
         val formatter = DateTimeFormatter
             .ISO_INSTANT

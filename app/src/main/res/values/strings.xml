@@ -15,4 +15,6 @@
     <string name="overview">Übersicht</string>
     <string name="overview_label">Übersicht</string>
     <string name="date_range">Vom %s bis %s</string>
+    <string name="add_feeding_manually">Stillmahlzeit</string>
+    <string name="add_feeding_manually_expanded">Stillmahlzeit hinzufügen</string>
 </resources>

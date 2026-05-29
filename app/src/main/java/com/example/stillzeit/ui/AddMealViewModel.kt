@@ -41,7 +41,8 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             null,
             "00:00:00",
             "00:00:00",
-            ""
+            "",
+            false
         )
     )
 
@@ -407,6 +408,18 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             minutes.toString().padStart(2, '0')
         }:${seconds.toString().padStart(2, '0')}"
     }
+
+    fun showAddMealManually() {
+        _uiState.update { currentState -> currentState.copy(
+            showAddManually = true
+        ) }
+    }
+
+    fun hideAddManually() {
+        _uiState.update { currentState -> currentState.copy(
+            showAddManually = false
+        ) }
+    }
 }
 
 data class AddMealUiState(
@@ -417,4 +430,5 @@ data class AddMealUiState(
     val leftDurationString: String,
     val rightDurationString: String,
     val lastMealTimeString: String,
+    val showAddManually: Boolean
 )
