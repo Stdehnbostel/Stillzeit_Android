@@ -139,6 +139,7 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             id.toString(),
             0,
             MealType.BREAST,
+            repository.createTimeStringForDatabase(ZonedDateTime.now()),
             _uiState.value.meal?.uuid ?: return
         )
         val detail = BreastFeedingDetailEntity(id.toString(), start, null, true, side)

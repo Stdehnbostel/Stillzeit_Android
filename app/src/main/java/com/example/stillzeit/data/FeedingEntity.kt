@@ -16,5 +16,6 @@ data class FeedingEntity (
     @PrimaryKey val id: String,
     var volume: Int? = null,
     var type: MealType,
+    var lastModified: String,
     @ColumnInfo(index = true) var mealId: UUID
 )
