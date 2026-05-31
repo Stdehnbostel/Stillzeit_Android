@@ -27,6 +27,7 @@ import com.example.stillzeit.data.Meal
 @Composable
 fun ProtocolScreen(
     viewModel: ProtocolViewModel,
+    onMealClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState = viewModel.uiState.collectAsState()
@@ -66,6 +67,7 @@ fun ProtocolScreen(
 
         MealList(
             meals = uiState.value.meals,
+            onMealClick = onMealClick,
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
@@ -76,6 +78,7 @@ fun ProtocolScreen(
 @Composable
 fun MealList(
     meals: List<Meal>,
+    onMealClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -84,6 +87,7 @@ fun MealList(
         items(meals) {
             meal -> MealCard(
             meal,
+            onClick = { onMealClick(meal.uuid.toString()) },
             Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
@@ -95,9 +99,11 @@ fun MealList(
 @Composable
 fun MealCard(
     meal: Meal,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier
     ) {
         Text(

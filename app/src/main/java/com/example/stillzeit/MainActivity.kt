@@ -29,12 +29,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.stillzeit.data.AppDatabase
 import com.example.stillzeit.ui.AddMealScreen
 import com.example.stillzeit.ui.AddMealViewModel
 import com.example.stillzeit.ui.Destination
+import com.example.stillzeit.ui.MealDetailScreen
 import com.example.stillzeit.ui.ProtocolScreen
 import com.example.stillzeit.ui.ProtocolViewModel
 import com.example.stillzeit.ui.theme.StillzeitTheme
@@ -61,7 +64,7 @@ fun NavigationTabs(
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
-    var startDestination = Destination.ADD_MEALS
+    val startDestination = Destination.ADD_MEALS
     var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
     Scaffold(
@@ -85,7 +88,7 @@ fun NavigationTabs(
         },
         bottomBar = {
             NavigationBar {
-                Destination.entries.forEachIndexed { index, destination ->
+                Destination.entries.filter { it.showInNavigationBar }.forEachIndexed { index, destination ->
                     NavigationBarItem(
                         selected = selectedDestination == index,
                         onClick = {
@@ -100,10 +103,12 @@ fun NavigationTabs(
                             )
                         },
                         icon = {
-                            Icon(
-                                imageVector = destination.icon,
-                                contentDescription = destination.contentDescription
-                            )
+                            destination.icon?.let {
+                                Icon(
+                                    imageVector = it,
+                                    contentDescription = destination.contentDescription
+                                )
+                            }
                         }
                     )
                 }
@@ -124,7 +129,7 @@ fun AppNavHost(
         navController,
         startDestination = startDestination.route
     ) {
-        Destination.entries.forEach { destination ->
+        Destination.entries.filter { it.showInNavigationBar }.forEach { destination ->
             composable(destination.route) {
                 when (destination) {
                     Destination.ADD_MEALS -> AddMealScreen(
@@ -133,10 +138,24 @@ fun AppNavHost(
                     )
                     Destination.PROTOCOL -> ProtocolScreen(
                         viewModel = viewModel(factory = ProtocolViewModel.Factory),
-                        modifier = modifier
+                        modifier = modifier,
+                        onMealClick = { mealId -> navController.navigate("meal_detail/$mealId") }
                     )
+                    // Hier sollte wahrscheinlich noch eine Error-Ausgabe oder dergleichen hin.
+                    else -> { }
                 }
             }
+        }
+        composable(
+            route = "meal_detail/{mealId}",
+            arguments = listOf(navArgument("mealId") { type = NavType.StringType })
+        ) {
+                backStackEntry ->
+            val mealId = requireNotNull(backStackEntry.arguments?.getString("mealId"))
+            MealDetailScreen(
+                mealId = mealId,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
