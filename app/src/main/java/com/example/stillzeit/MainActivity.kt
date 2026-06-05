@@ -1,6 +1,7 @@
 package com.example.stillzeit
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -154,7 +155,8 @@ fun AppNavHost(
             val mealId = requireNotNull(backStackEntry.arguments?.getString("mealId"))
             MealDetailScreen(
                 mealId = mealId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                modifier = modifier
             )
         }
     }
