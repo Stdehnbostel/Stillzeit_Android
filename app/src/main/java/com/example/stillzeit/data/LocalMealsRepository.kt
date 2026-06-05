@@ -4,6 +4,8 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -11,6 +13,7 @@ import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 
 class LocalMealsRepository(
     private val mealDao: MealDao,
@@ -55,6 +58,14 @@ class LocalMealsRepository(
     }
 
     override fun getMeals(): Flow<List<Meal>> = _meals
+
+    override fun getMealById(mealId: UUID): Flow<Meal> = flow {
+        val mealEntity = mealDao.getMealById(mealId)
+        if (mealEntity != null) {
+            val feedings = breastFeedingDao.getFeedingsForMeal(mealId)
+            emit(mealEntity.toMeal(feedings))
+        }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun addMeal(meal: Meal) {
         _meals.update { currentMeals -> currentMeals + meal }

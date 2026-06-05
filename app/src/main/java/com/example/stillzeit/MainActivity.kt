@@ -39,6 +39,7 @@ import com.example.stillzeit.ui.AddMealScreen
 import com.example.stillzeit.ui.AddMealViewModel
 import com.example.stillzeit.ui.Destination
 import com.example.stillzeit.ui.MealDetailScreen
+import com.example.stillzeit.ui.MealDetailViewModel
 import com.example.stillzeit.ui.ProtocolScreen
 import com.example.stillzeit.ui.ProtocolViewModel
 import com.example.stillzeit.ui.theme.StillzeitTheme
@@ -156,6 +157,7 @@ fun AppNavHost(
             MealDetailScreen(
                 mealId = mealId,
                 onBack = { navController.popBackStack() },
+                viewModel = viewModel(factory = MealDetailViewModel.Factory),
                 modifier = modifier
             )
         }

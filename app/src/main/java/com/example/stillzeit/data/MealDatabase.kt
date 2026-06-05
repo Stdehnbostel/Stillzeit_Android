@@ -6,8 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import java.util.UUID
 
 class Converters {
     @TypeConverter
@@ -27,7 +26,22 @@ class Converters {
 
     @TypeConverter
     fun mealTypeToString(type: MealType): String {
-        return type.toString()
+        return type.name
+    }
+
+    @TypeConverter
+    fun stringToMealType(string: String): MealType {
+        return MealType.valueOf(string)
+    }
+
+    @TypeConverter
+    fun uuidToString(uuid: UUID?): String? {
+        return uuid?.toString()
+    }
+
+    @TypeConverter
+    fun stringToUuid(string: String?): UUID? {
+        return string?.let { UUID.fromString(it) }
     }
 }
 

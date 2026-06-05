@@ -81,6 +81,6 @@ fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf()): Meal {
         start = start,
         end = end,
         comment = comment,
-        breastFeedings = emptyList()
+        breastFeedings = breastFeedings
     )
 }

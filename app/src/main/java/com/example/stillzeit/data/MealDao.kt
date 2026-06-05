@@ -21,4 +21,7 @@ interface MealDao {
 
     @Query("SELECT * FROM meal WHERE babyId IS NULL AND (start BETWEEN :start AND :end)")
     suspend fun getMealsWithoutBabyForSelectedTimeframe(start: String, end: String): List<MealEntity>
+
+    @Query("SELECT * FROM meal WHERE uuid = :mealId")
+    suspend fun getMealById(mealId: UUID): MealEntity?
 }
