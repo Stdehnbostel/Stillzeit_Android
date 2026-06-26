@@ -13,6 +13,7 @@ interface MealsRepository {
     fun incrementWeek()
     fun decrementWeek()
     fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String
+    fun getLastMeal(): Flow<Meal?>
 
     fun getEndOfWeek(): ZonedDateTime
 }

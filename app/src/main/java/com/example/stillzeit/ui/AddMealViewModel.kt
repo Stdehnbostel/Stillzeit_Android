@@ -55,6 +55,17 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
         }
     }
 
+    private val lastMealJob: Job =viewModelScope.launch {
+        repository.getLastMeal().collect { meal ->
+            _uiState.update { currentState ->
+                currentState.copy(
+                    lastMeal = meal
+                )
+            }
+        }
+    }
+
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

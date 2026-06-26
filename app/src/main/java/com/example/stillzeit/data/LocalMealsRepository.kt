@@ -67,6 +67,14 @@ class LocalMealsRepository(
         }
     }.flowOn(Dispatchers.IO)
 
+    override fun getLastMeal(): Flow<Meal?> = flow {
+        val mealEntity = mealDao.getLastMeal()
+        if (mealEntity != null) {
+            val feedings = breastFeedingDao.getFeedingsForMeal(mealEntity.uuid)
+            emit(mealEntity.toMeal(feedings))
+        }
+    }.flowOn(Dispatchers.IO)
+
     override suspend fun addMeal(meal: Meal) {
         _meals.update { currentMeals -> currentMeals + meal }
         mealDao.insert(meal.toMealEntity())
