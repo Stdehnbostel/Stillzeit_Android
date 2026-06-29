@@ -53,6 +53,11 @@ data class Meal (
         return startTime.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
+    fun formattedStartDate(): String {
+        val startTime = ZonedDateTime.parse(start)
+        return startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    }
+
     fun formattedEndTime(): String {
         val endTime: ZonedDateTime? = end?.let { ZonedDateTime.parse(it) } ?: null
         return endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: ""

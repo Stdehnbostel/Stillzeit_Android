@@ -2,11 +2,13 @@ package com.example.stillzeit.ui
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.room.util.TableInfo
 
 @Composable
 fun MealDetailScreen(
@@ -16,10 +18,26 @@ fun MealDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState = viewModel.uiState.collectAsState()
+    val meal = uiState.value.meal
     Column(horizontalAlignment = Alignment.Start, modifier = modifier) {
-        // Platzhalter für richtige Detail-Ansicht.
-        Text(text = "Meal Detail Screen for Meal ID: $mealId", modifier = modifier)
-        Text(text = "Von ${uiState.value.meal?.start ?: "nicht vorhanden"}")
-        Text(text = "Bis ${uiState.value.meal?.end ?: "nicht vorhanden"}")
+        Row(modifier = Modifier) {
+            Column(modifier = Modifier) {
+                Text("Datum")
+                Text(text = meal?.formattedStartDate() ?: "", modifier = Modifier)
+            }
+            Column(modifier = Modifier) {
+                Text("Uhrzeit")
+                Text(text = meal?.formattedStartTime() ?: "", modifier = Modifier)
+            }
+        }
+
+        Row(modifier = Modifier) {
+            Column(modifier = Modifier) {
+                Text("Dauer")
+                Text(text = meal?.formattedDuration() ?: "", modifier = Modifier)
+            }
+        }
+
+
     }
 }

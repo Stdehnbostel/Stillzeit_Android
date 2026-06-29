@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.stillzeit.data.AppDatabase
 import com.example.stillzeit.ui.AddMealScreen
@@ -66,8 +67,12 @@ fun NavigationTabs(
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     val startDestination = Destination.ADD_MEALS
-    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
+
+    val currentDestination = Destination.entries.find { it.route == currentRoute }
+        ?: startDestination
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -82,7 +87,7 @@ fun NavigationTabs(
                 ),
                 title = {
                     Text(
-                        text = stringResource(Destination.entries[selectedDestination].titleRes),
+                        text = stringResource(currentDestination.titleRes),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -90,12 +95,17 @@ fun NavigationTabs(
         },
         bottomBar = {
             NavigationBar {
-                Destination.entries.filter { it.showInNavigationBar }.forEachIndexed { index, destination ->
+                Destination.entries.filter { it.showInNavigationBar }.forEach { destination ->
                     NavigationBarItem(
-                        selected = selectedDestination == index,
+                        selected = currentRoute == destination.route,
                         onClick = {
-                            navController.navigate(route = destination.route)
-                            selectedDestination = index
+                            navController.navigate(route = destination.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         },
                         label = {
                             Text(
@@ -149,7 +159,7 @@ fun AppNavHost(
             }
         }
         composable(
-            route = "meal_detail/{mealId}",
+            route = Destination.MEAL_DETAILS.route,
             arguments = listOf(navArgument("mealId") { type = NavType.StringType })
         ) {
                 backStackEntry ->
