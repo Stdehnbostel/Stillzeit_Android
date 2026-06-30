@@ -56,7 +56,10 @@ fun AddMealScreen(
 
     if (uiState.showAddManually) {
         ModalBottomSheet(onDismissRequest = { viewModel.hideAddManually() }) {
-            AddMealManuallyScreen(modifier = Modifier.fillMaxWidth())
+            AddMealManuallyScreen(
+                viewModel = viewModel(factory = AddMealManuallyViewModel.Factory),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 
