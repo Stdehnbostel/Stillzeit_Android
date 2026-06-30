@@ -1,5 +1,6 @@
 package com.example.stillzeit.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,9 +10,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -60,7 +63,9 @@ fun AddMealManuallyScreen(
             }
         }
         MealTypePage.BREAST -> {
-            AddBreastFeedingMealManuallyScreen()
+            AddBreastFeedingMealManuallyScreen(
+                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) }
+            )
         }
     }
 
@@ -68,9 +73,18 @@ fun AddMealManuallyScreen(
 
 @Composable
 fun AddBreastFeedingMealManuallyScreen(
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        item {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back_button_content_description)
+                )
+            }
+        }
         item {
             DateField(
                 "Start",
