@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
@@ -41,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
 import java.time.ZonedDateTime
@@ -109,25 +112,32 @@ fun AddBreastFeedingMealManuallyScreen(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
                     DateField(
-                        "Datum",
+                        R.string.date,
                         ZonedDateTime.now(),
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(modifier = Modifier.weight(1f)) {
                     TimeField(
-                        "Uhrzeit",
+                        R.string.time,
                         ZonedDateTime.now(),
                     )
                 }
             }
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            DurationField(
+                label = R.string.duration_in_minutes,
+                value = ""
+            )
         }
     }
 }
 
 @Composable
 fun DateField(
-    label: String,
+    @StringRes label: Int,
     value: ZonedDateTime,
     modifier: Modifier = Modifier
 ) {
@@ -141,7 +151,9 @@ fun DateField(
                 TextButton(onClick = {
                     showPicker = false
                 }) {
-                    Text("OK")
+                    Text(
+                        text = stringResource(R.string.ok)
+                    )
                 }
             }
         ) {
@@ -151,7 +163,7 @@ fun DateField(
 
     Column(modifier = modifier) {
         Text(
-            label,
+            text = stringResource(label),
             style = MaterialTheme.typography.titleSmall
         )
 
@@ -191,7 +203,7 @@ fun DateField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeField(
-    label: String,
+    @StringRes label: Int,
     value: ZonedDateTime,
     modifier: Modifier = Modifier
 ) {
@@ -209,14 +221,18 @@ fun TimeField(
                 TextButton(onClick = {
                     showPicker = false
                 }) {
-                    Text("OK")
+                    Text(
+                        text = stringResource(R.string.ok)
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showPicker = false
                 }) {
-                    Text("Abbrechen")
+                    Text(
+                        text = stringResource(R.string.abort_action)
+                    )
                 }
             },
             text = {
@@ -227,7 +243,7 @@ fun TimeField(
 
     Column(modifier = modifier) {
         Text(
-            label,
+            text = stringResource(label),
             style = MaterialTheme.typography.titleSmall
         )
 
@@ -257,5 +273,29 @@ fun TimeField(
                     })
             )
         }
+    }
+}
+
+@Composable
+fun DurationField(
+    @StringRes label: Int,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    var textValue by remember { mutableStateOf(value) }
+
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(label),
+            style = MaterialTheme.typography.titleSmall
+        )
+
+        OutlinedTextField(
+            value = textValue,
+            onValueChange = { textValue = it },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            placeholder = { Text("0") },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

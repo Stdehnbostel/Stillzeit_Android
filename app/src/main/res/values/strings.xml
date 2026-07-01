@@ -19,4 +19,9 @@
     <string name="add_feeding_manually_expanded">Stillmahlzeit hinzufügen</string>
     <string name="breastfeeding_meal_title">Stillmahlzeit</string>
     <string name="back_button_content_description">Zurück</string>
+    <string name="abort_action">Abbrechen</string>
+    <string name="ok">Ok</string>
+    <string name="date">Datum</string>
+    <string name="time">Uhtzeit</string>
+    <string name="duration_in_minutes">Dauer (Minuten)</string>
 </resources>
