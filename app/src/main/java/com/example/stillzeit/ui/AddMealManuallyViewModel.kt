@@ -7,10 +7,20 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.stillzeit.StillzeitApplication
+import com.example.stillzeit.data.BreastFeeding
+import com.example.stillzeit.data.BreastFeedingDetailEntity
+import com.example.stillzeit.data.FeedingEntity
+import com.example.stillzeit.data.Meal
+import com.example.stillzeit.data.MealType
 import com.example.stillzeit.data.MealsRepository
+import com.example.stillzeit.data.Side
+import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.util.UUID
 
 enum class MealTypePage {
     MENU,
@@ -21,6 +31,21 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
     var page by mutableStateOf(MealTypePage.MENU)
         private set
 
+    var start: ZonedDateTime by mutableStateOf(ZonedDateTime.now())
+        private set
+    var duration: kotlin.time.Duration by mutableStateOf(kotlin.time.Duration.ZERO)
+        private set
+
+    fun setFeedingStart(start: ZonedDateTime) {
+        this.start = start
+        Log.i("FeedingStart", "setFeedingStart: $start")
+    }
+
+    fun setFeedingDuration(duration: kotlin.time.Duration) {
+        this.duration = duration
+        Log.i("Duration", "setFeedingDuration: $duration")
+    }
+
     fun setAddMealPage(page: MealTypePage) {
         Log.i("MealTypePage", "setAddMealPage: $page")
         this.page = page
@@ -28,6 +53,41 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
 
     fun getAddMealPage(): MealTypePage {
         return page
+    }
+
+    fun saveBreastFeeding() {
+        val end = start.plusMinutes(duration.inWholeMinutes)
+        val mealUuid = UUID.randomUUID()
+        val feedingUuid = UUID.randomUUID()
+        val meal = Meal(
+            mealUuid,
+            1,
+            "breast",
+            repository.createTimeStringForDatabase(start),
+            repository.createTimeStringForDatabase(end),
+            "",
+            listOf(
+                BreastFeeding(
+                    feeding = FeedingEntity(
+                        feedingUuid.toString(),
+                        0,
+                        MealType.BREAST,
+                        repository.createTimeStringForDatabase(ZonedDateTime.now()),
+                        mealUuid
+                    ),
+                    detail = BreastFeedingDetailEntity(
+                        feedingUuid.toString(),
+                        repository.createTimeStringForDatabase(start),
+                        repository.createTimeStringForDatabase(end),
+                        true,
+                        Side.EMPTY
+                    )
+                )
+            )
+        )
+        viewModelScope.launch {
+            repository.addMeal(meal)
+        }
     }
 
     companion object {

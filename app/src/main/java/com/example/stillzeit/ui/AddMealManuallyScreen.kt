@@ -3,6 +3,7 @@ package com.example.stillzeit.ui
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,8 +47,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun AddMealManuallyScreen(
@@ -86,7 +90,12 @@ fun AddMealManuallyScreen(
         }
         MealTypePage.BREAST -> {
             AddBreastFeedingMealManuallyScreen(
-                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) }
+                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) },
+                start = viewModel.start,
+                duration = viewModel.duration,
+                setStart = viewModel::setFeedingStart,
+                setDuration = viewModel::setFeedingDuration,
+                saveBreastFeeding = viewModel::saveBreastFeeding,
             )
         }
     }
@@ -97,9 +106,17 @@ fun AddMealManuallyScreen(
 @Composable
 fun AddBreastFeedingMealManuallyScreen(
     onBack: () -> Unit,
+    start: ZonedDateTime,
+    duration: kotlin.time.Duration,
+    setStart: (ZonedDateTime) -> Unit,
+    setDuration: (kotlin.time.Duration) -> Unit,
+    saveBreastFeeding: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
         item {
             IconButton(onClick = onBack) {
                 Icon(
@@ -112,25 +129,40 @@ fun AddBreastFeedingMealManuallyScreen(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
                     DateField(
-                        R.string.date,
-                        ZonedDateTime.now(),
+                        label = R.string.date,
+                        value = start,
+                        setDate = setStart
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(modifier = Modifier.weight(1f)) {
                     TimeField(
-                        R.string.time,
-                        ZonedDateTime.now(),
+                        label = R.string.time,
+                        value = start,
+                        setTime = setStart
                     )
                 }
             }
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))
+            var durationText by remember { mutableStateOf(if (duration == kotlin.time.Duration.ZERO) "" else duration.inWholeMinutes.toString()) }
             DurationField(
                 label = R.string.duration_in_minutes,
-                value = ""
+                value = durationText,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        durationText = newValue
+                        setDuration((newValue.toLongOrNull() ?: 0L).minutes)
+                    }
+                }
             )
+        }
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = saveBreastFeeding) {
+                Text(stringResource(R.string.save))
+            }
         }
     }
 }
@@ -139,6 +171,7 @@ fun AddBreastFeedingMealManuallyScreen(
 fun DateField(
     @StringRes label: Int,
     value: ZonedDateTime,
+    setDate: (ZonedDateTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showPicker by remember { mutableStateOf(false) }
@@ -149,6 +182,15 @@ fun DateField(
             onDismissRequest = { showPicker = false },
             confirmButton = {
                 TextButton(onClick = {
+                    state.selectedDateMillis?.let { millis ->
+                        val selectedDate = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneId.of("UTC"))
+                            .toLocalDate()
+                        val updatedDateTime = value.withYear(selectedDate.year)
+                            .withMonth(selectedDate.monthValue)
+                            .withDayOfMonth(selectedDate.dayOfMonth)
+                        setDate(updatedDateTime)
+                    }
                     showPicker = false
                 }) {
                     Text(
@@ -205,6 +247,7 @@ fun DateField(
 fun TimeField(
     @StringRes label: Int,
     value: ZonedDateTime,
+    setTime: (ZonedDateTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showPicker by remember { mutableStateOf(false) }
@@ -219,6 +262,9 @@ fun TimeField(
             onDismissRequest = { showPicker = false },
             confirmButton = {
                 TextButton(onClick = {
+                    val updatedDateTime = value.withHour(timePickerState.hour)
+                        .withMinute(timePickerState.minute)
+                    setTime(updatedDateTime)
                     showPicker = false
                 }) {
                     Text(
@@ -280,10 +326,9 @@ fun TimeField(
 fun DurationField(
     @StringRes label: Int,
     value: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var textValue by remember { mutableStateOf(value) }
-
     Column(modifier = modifier) {
         Text(
             text = stringResource(label),
@@ -291,8 +336,8 @@ fun DurationField(
         )
 
         OutlinedTextField(
-            value = textValue,
-            onValueChange = { textValue = it },
+            value = value,
+            onValueChange = onValueChange,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             placeholder = { Text("0") },
             modifier = Modifier.fillMaxWidth()

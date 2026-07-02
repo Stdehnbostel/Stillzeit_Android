@@ -24,4 +24,5 @@
     <string name="date">Datum</string>
     <string name="time">Uhtzeit</string>
     <string name="duration_in_minutes">Dauer (Minuten)</string>
+    <string name="save">Speichern</string>
 </resources>
