@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -89,13 +91,33 @@ fun ProtocolScreen(
             )
         } else {
             Canvas(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
             ) {
-                val canvasQuadrantSize = size / 8F
-                drawRect(
-                    color = Color.Gray,
-                    size = canvasQuadrantSize
-                )
+                val stripeCount = 7
+                val sectionCount = 24
+                val gapWidth = 8.dp.toPx()
+
+                val totalGapWidth = gapWidth * (stripeCount - 1)
+                val stripeWidth = (size.width - totalGapWidth) / stripeCount
+                val sectionHeight = size.height / sectionCount
+
+                for (stripeIndex in 0 until stripeCount) {
+                    val stripeX = stripeIndex * (stripeWidth + gapWidth)
+                    for (sectionIndex in 0 until sectionCount) {
+                        val color = if (sectionIndex % 2 == 0) {
+                            Color.LightGray
+                        } else {
+                            Color.Gray
+                        }
+                        drawRect(
+                            color = color,
+                            topLeft = Offset(stripeX, sectionIndex * sectionHeight),
+                            size = Size(stripeWidth, sectionHeight)
+                        )
+                    }
+                }
             }
         }
     }
@@ -128,7 +150,7 @@ fun SingleChoiceSegmentedButton(
     onCheckedChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val options = listOf("Liste", "Diagramm")
+    val options = listOf(stringResource(R.string.list_view).toString(), stringResource(R.string.diagramm_view).toString())
     val selectedIndex = if (showList) 0 else 1
 
     SingleChoiceSegmentedButtonRow(modifier = modifier) {

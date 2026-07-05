@@ -25,4 +25,6 @@
     <string name="time">Uhtzeit</string>
     <string name="duration_in_minutes">Dauer (Minuten)</string>
     <string name="save">Speichern</string>
+    <string name="list_view">Liste</string>
+    <string name="diagramm_view">Diagramm</string>
 </resources>
