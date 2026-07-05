@@ -19,6 +19,7 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         ProtocolUiState(
+            true,
             getFormattedStartOfSelectedWeek(),
             getFormattedEndOfSelectedWeek(),
             emptyList()
@@ -56,6 +57,12 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
         ) }
     }
 
+    fun showList(show: Boolean) {
+        _uiState.update { currentState -> currentState.copy(
+            showList = show
+        ) }
+    }
+
     fun decrementWeek() {
         repository.decrementWeek()
         _uiState.update { currentState -> currentState.copy(
@@ -76,6 +83,7 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
 }
 
 data class ProtocolUiState(
+    val showList: Boolean,
     val startOfWeek: String,
     val endOfWeek: String,
     val meals: List<Meal>
