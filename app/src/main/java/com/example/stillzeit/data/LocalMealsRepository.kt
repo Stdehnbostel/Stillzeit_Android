@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -22,10 +21,12 @@ class LocalMealsRepository(
 ) : MealsRepository {
     // Müsste eigentlich auf das tatsächliche Ende der Woche, bzw. den Anfang der nächsten Woche
     // Montag 0:00 Uhr gesetzt werden.
-    private var endOfWeek: ZonedDateTime = if (ZonedDateTime.now().dayOfWeek == DayOfWeek.SUNDAY) {
-        ZonedDateTime.now()
-    } else {
-        ZonedDateTime.now().plusDays(7 - ZonedDateTime.now().dayOfWeek.value.toLong())
+    private var endOfWeek = getEndOfWeekForTimestamp(ZonedDateTime.now())
+
+    fun getEndOfWeekForTimestamp(timestamp: ZonedDateTime): ZonedDateTime {
+        val dayOfWeek = timestamp.dayOfWeek
+        val endDay = timestamp.plusDays(7 - dayOfWeek.value.toLong())
+        return  endDay.truncatedTo(java.time.temporal.ChronoUnit.DAYS)
     }
     private val _meals = MutableStateFlow<List<Meal>>(listOf())
 
@@ -85,7 +86,7 @@ class LocalMealsRepository(
 
     override fun incrementWeek() {
         // keine zukündtigen Wochen anzeigen.
-        if (endOfWeek < ZonedDateTime.now().plusDays(7)) {
+        if (endOfWeek < getEndOfWeekForTimestamp(ZonedDateTime.now())) {
             endOfWeek = endOfWeek.plusDays(7)
             loadMeals()
         }
