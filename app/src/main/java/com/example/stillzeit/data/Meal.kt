@@ -35,6 +35,14 @@ data class Meal (
         return Duration.between(start, end).toKotlinDuration()
     }
 
+    fun startAsDate(): ZonedDateTime {
+        return ZonedDateTime.parse(start)
+    }
+
+    fun endAsDate(): ZonedDateTime? {
+        return ZonedDateTime.parse(end)
+    }
+
     fun formattedDuration(): String {
         val duration = duration()
         val hours = duration.inWholeHours

@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -25,10 +27,15 @@ class LocalMealsRepository(
 
     fun getEndOfWeekForTimestamp(timestamp: ZonedDateTime): ZonedDateTime {
         val dayOfWeek = timestamp.dayOfWeek
-        val endDay = timestamp.plusDays(7 - dayOfWeek.value.toLong())
+        val endDay = timestamp.plusDays(8 - dayOfWeek.value.toLong())
+
+        val truncatedEndDay = endDay.truncatedTo(java.time.temporal.ChronoUnit.DAYS)
+        Log.i("EndOfWeek:", truncatedEndDay.toString())
         return  endDay.truncatedTo(java.time.temporal.ChronoUnit.DAYS)
     }
     private val _meals = MutableStateFlow<List<Meal>>(listOf())
+
+    private val _days = MutableStateFlow<List<Day>>(listOf())
 
     init {
         loadMeals()
@@ -43,6 +50,7 @@ class LocalMealsRepository(
             _meals.value = mealEntities.map {
                 it.toMeal(breastFeedingDao.getFeedingsForMeal(it.uuid))
             }
+            _days.value = makeDays(_meals.value)
         }
     }
 
@@ -101,5 +109,24 @@ class LocalMealsRepository(
 
     override fun getEndOfWeek(): ZonedDateTime {
         return endOfWeek
+    }
+
+    fun makeDays(meals: List<Meal>): List<Day> {
+        var days = mutableListOf<Day>()
+        for (weekDay in 0L..7L) {
+            val start = endOfWeek.plusDays(-weekDay)
+            val end = endOfWeek.plusDays(-weekDay + 1)
+            val daysMeals = meals.filter {
+                    it.startAsDate() in start..<end
+                }
+                days.add(Day(daysMeals, start, end))
+            }
+
+        Log.i("days", days.toString())
+        return days
+    }
+
+    override fun getDays(): Flow<List<Day>> {
+        return _days
     }
 }

@@ -16,4 +16,12 @@ interface MealsRepository {
     fun getLastMeal(): Flow<Meal?>
 
     fun getEndOfWeek(): ZonedDateTime
+
+    fun getDays(): Flow<List<Day>>
 }
+
+data class Day(
+    val meals: List<Meal>,
+    val start: ZonedDateTime,
+    val end: ZonedDateTime,
+)

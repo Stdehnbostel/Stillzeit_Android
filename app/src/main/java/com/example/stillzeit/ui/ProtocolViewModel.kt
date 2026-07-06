@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.stillzeit.StillzeitApplication
+import com.example.stillzeit.data.Day
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.MealsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
             true,
             getFormattedStartOfSelectedWeek(),
             getFormattedEndOfSelectedWeek(),
+            emptyList(),
             emptyList()
         )
     )
@@ -29,12 +31,13 @@ class ProtocolViewModel(val repository: MealsRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.getMeals().collect { meals ->
+            repository.getDays().collect { days ->
                 _uiState.update { currentState ->
                     currentState.copy(
-                        meals = meals,
+                        meals = days.map { it.meals }.reduce { acc, meals -> acc + meals },
                         startOfWeek = getFormattedStartOfSelectedWeek(),
-                        endOfWeek = getFormattedEndOfSelectedWeek()
+                        endOfWeek = getFormattedEndOfSelectedWeek(),
+                        days = days
                     )
                 }
             }
@@ -86,5 +89,6 @@ data class ProtocolUiState(
     val showList: Boolean,
     val startOfWeek: String,
     val endOfWeek: String,
-    val meals: List<Meal>
+    val meals: List<Meal>,
+    val days: List<Day>,
 )
