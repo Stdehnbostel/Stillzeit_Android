@@ -35,12 +35,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
 import com.example.stillzeit.data.Day
 import com.example.stillzeit.data.Meal
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun ProtocolScreen(
@@ -119,6 +123,36 @@ fun MealDiagram(
     modifier: Modifier = Modifier
 ) {
     val accentColor = MaterialTheme.colorScheme.secondary
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (dayOfWeek in DayOfWeek.entries) {
+                Text(
+                    text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        MealDiagramCanvas(
+            days = days,
+            accentColor = accentColor,
+            onMealClick = onMealClick,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+private fun MealDiagramCanvas(
+    days: List<Day>,
+    accentColor: Color,
+    onMealClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Canvas(
         modifier = modifier
             .pointerInput(days) {
