@@ -1,6 +1,7 @@
 package com.example.stillzeit.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,12 +30,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
+import com.example.stillzeit.data.Day
 import com.example.stillzeit.data.Meal
+import java.time.Duration
+import java.time.ZonedDateTime
 
 @Composable
 fun ProtocolScreen(
@@ -90,37 +96,129 @@ fun ProtocolScreen(
                     .fillMaxWidth()
             )
         } else {
-            Canvas(
+            MealDiagram(
+                days = uiState.value.days,
+                onMealClick = onMealClick,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
-            ) {
-                val stripeCount = 7
-                val sectionCount = 24
-                val gapWidth = 8.dp.toPx()
-
-                val totalGapWidth = gapWidth * (stripeCount - 1)
-                val stripeWidth = (size.width - totalGapWidth) / stripeCount
-                val sectionHeight = size.height / sectionCount
-
-                for (stripeIndex in 0 until stripeCount) {
-                    val stripeX = stripeIndex * (stripeWidth + gapWidth)
-                    for (sectionIndex in 0 until sectionCount) {
-                        val color = if (sectionIndex % 2 == 0) {
-                            Color.LightGray
-                        } else {
-                            Color.Gray
-                        }
-                        drawRect(
-                            color = color,
-                            topLeft = Offset(stripeX, sectionIndex * sectionHeight),
-                            size = Size(stripeWidth, sectionHeight)
-                        )
-                    }
-                }
-            }
+                    .padding(8.dp)
+            )
         }
     }
+}
+
+/**
+ * Weekly diagram: seven weekday columns (Monday..Sunday) with the time of day on the
+ * vertical axis (00:00 top, 24:00 bottom). Each meal is drawn as a tappable bar in the
+ * accent color; tapping a bar invokes [onMealClick] with the meal's uuid.
+ */
+@Composable
+fun MealDiagram(
+    days: List<Day>,
+    onMealClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val accentColor = MaterialTheme.colorScheme.secondary
+    Canvas(
+        modifier = modifier
+            .pointerInput(days) {
+                val gapWidth = 8.dp.toPx()
+                val minMealHeight = 2.dp.toPx()
+                detectTapGestures { tap ->
+                    mealRects(
+                        days = days,
+                        canvasWidth = size.width.toFloat(),
+                        canvasHeight = size.height.toFloat(),
+                        gapWidth = gapWidth,
+                        minMealHeight = minMealHeight
+                    )
+                        // last drawn is on top, so match it when meals overlap
+                        .lastOrNull { it.second.contains(tap) }
+                        ?.let { onMealClick(it.first.uuid.toString()) }
+                }
+            },
+    ) {
+        val stripeCount = 7
+        val sectionCount = 24
+        val gapWidth = 8.dp.toPx()
+
+        val totalGapWidth = gapWidth * (stripeCount - 1)
+        val stripeWidth = (size.width - totalGapWidth) / stripeCount
+        val sectionHeight = size.height / sectionCount
+
+        for (stripeIndex in 0 until stripeCount) {
+            val stripeX = stripeIndex * (stripeWidth + gapWidth)
+            for (sectionIndex in 0 until sectionCount) {
+                val color = if (sectionIndex % 2 == 0) {
+                    Color.LightGray
+                } else {
+                    Color.Gray
+                }
+                drawRect(
+                    color = color,
+                    topLeft = Offset(stripeX, sectionIndex * sectionHeight),
+                    size = Size(stripeWidth, sectionHeight)
+                )
+            }
+        }
+
+        mealRects(
+            days = days,
+            canvasWidth = size.width,
+            canvasHeight = size.height,
+            gapWidth = gapWidth,
+            minMealHeight = 2.dp.toPx()
+        ).forEach { (_, rect) ->
+            drawRect(
+                color = accentColor,
+                topLeft = rect.topLeft,
+                size = rect.size
+            )
+        }
+    }
+}
+
+/**
+ * Computes the rectangle for every meal on the weekly diagram, so that drawing and
+ * tap hit-testing share the exact same geometry. Columns are weekdays (Monday -> 0,
+ * Sunday -> 6) and the vertical axis is the time of day (00:00 top, 24:00 bottom).
+ */
+private fun mealRects(
+    days: List<Day>,
+    canvasWidth: Float,
+    canvasHeight: Float,
+    gapWidth: Float,
+    minMealHeight: Float
+): List<Pair<Meal, Rect>> {
+    val stripeCount = 7
+    val minutesPerDay = 24f * 60f
+    val totalGapWidth = gapWidth * (stripeCount - 1)
+    val stripeWidth = (canvasWidth - totalGapWidth) / stripeCount
+
+    val rects = mutableListOf<Pair<Meal, Rect>>()
+    for (day in days) {
+        val stripeIndex = day.start.dayOfWeek.value - 1
+        if (stripeIndex !in 0 until stripeCount) continue
+        val stripeX = stripeIndex * (stripeWidth + gapWidth)
+
+        for (meal in day.meals) {
+            val endInstant = meal.end?.let { ZonedDateTime.parse(it) } ?: meal.startAsDate()
+
+            val startMinutes = Duration.between(day.start, meal.startAsDate())
+                .toMinutes()
+                .coerceIn(0L, minutesPerDay.toLong())
+            val endMinutes = Duration.between(day.start, endInstant)
+                .toMinutes()
+                .coerceIn(startMinutes, minutesPerDay.toLong())
+
+            val top = startMinutes / minutesPerDay * canvasHeight
+            val mealHeight = ((endMinutes - startMinutes) / minutesPerDay * canvasHeight)
+                .coerceAtLeast(minMealHeight)
+
+            rects.add(meal to Rect(stripeX, top, stripeX + stripeWidth, top + mealHeight))
+        }
+    }
+    return rects
 }
 
 @Composable
