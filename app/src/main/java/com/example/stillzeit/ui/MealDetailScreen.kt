@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.room.util.TableInfo
@@ -41,11 +42,11 @@ fun MealDetailScreen(
         item {
             Row(modifier = Modifier.padding(8.dp)) {
                 Column(modifier = Modifier) {
-                    Text("Datum")
+                    Text(stringResource(R.string.date))
                     Text(text = meal?.formattedStartDate() ?: "", modifier = Modifier)
                 }
                 Column(modifier = Modifier) {
-                    Text("Uhrzeit")
+                    Text(stringResource(R.string.time_Label))
                     Text(text = meal?.formattedStartTime() ?: "", modifier = Modifier)
                 }
             }
@@ -53,8 +54,16 @@ fun MealDetailScreen(
         item {
             Row(modifier = Modifier.padding(8.dp)) {
                 Column(modifier = Modifier) {
-                    Text("Dauer")
+                    Text(stringResource(R.string.duration_label))
                     Text(text = meal?.formattedDuration() ?: "", modifier = Modifier)
+                }
+            }
+        }
+        item {
+            Row(modifier = Modifier.padding(8.dp)) {
+                Column(modifier = Modifier) {
+                    Text(stringResource(R.string.comment_label))
+                    Text(meal?.comment ?: "")
                 }
             }
         }

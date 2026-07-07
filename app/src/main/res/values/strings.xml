@@ -26,6 +26,8 @@
     <string name="date">Datum</string>
     <string name="time">Uhtzeit</string>
     <string name="duration_in_minutes">Dauer (Minuten)</string>
+    <string name="duration_label">Dauer</string>
+    <string name="time_Label">Uhrzeit</string>
     <string name="save">Speichern</string>
     <string name="delete_meal">Mahlzeit löschen</string>
     <string name="list_view">Liste</string>
