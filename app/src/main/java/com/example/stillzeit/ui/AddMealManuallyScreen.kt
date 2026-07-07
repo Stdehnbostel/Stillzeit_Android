@@ -118,11 +118,13 @@ fun AddBreastFeedingMealManuallyScreen(
         modifier = modifier.padding(horizontal = 16.dp)
     ) {
         item {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back_button_content_description)
-                )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back_button_content_description)
+                    )
+                }
             }
         }
         item {
