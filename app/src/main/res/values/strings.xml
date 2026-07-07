@@ -5,6 +5,8 @@
     <string name="left_feeding_button_name">Links</string>
     <string name="right_feeding_button_name">Rechts</string>
     <string name="add_manually">manuell Hinzufügen</string>
+    <string name="comment_label">Notiz</string>
+    <string name="comment_placeholder">Notiz hinzufügen...</string>
     <string name="start_end">Start: %s Uhr - Ende: %s Uhr</string>
     <string name="last_meal">letzte: vor %s</string>
     <string name="no_meals_found">letzte: keine Mahlzeiten gefunden</string>

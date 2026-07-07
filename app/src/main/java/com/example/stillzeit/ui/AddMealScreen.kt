@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -74,6 +75,16 @@ fun AddMealScreen(
             uiState.leftDurationString,
             uiState.rightDurationString,
             modifier = Modifier.padding(vertical = 8.dp)
+        )
+        OutlinedTextField(
+            value = uiState.comment,
+            onValueChange = viewModel::updateComment,
+            label = { Text(stringResource(R.string.comment_label)) },
+            placeholder = { Text(stringResource(R.string.comment_placeholder)) },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
         )
         LastFeeding(
             mealStartText,

@@ -42,7 +42,8 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             "00:00:00",
             "00:00:00",
             "",
-            false
+            false,
+            ""
         )
     )
 
@@ -294,22 +295,37 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
         }
     }
 
+    fun updateComment(comment: String) {
+        _uiState.update { currentState ->
+            currentState.copy(comment = comment)
+        }
+    }
+
     fun endMeal() {
         val now = getSystemTimeStamp()
         val endFeedingTimeString = repository.createTimeStringForDatabase(now)
         endFeeding(endFeedingTimeString)
 
         val meal = _uiState.value.meal ?: return
-        addMeal(meal)
+        val commentedMeal = Meal(
+            meal.uuid,
+            meal.numberOfFeedings,
+            meal.type,
+            meal.start,
+            meal.end,
+            _uiState.value.comment,
+            meal.breastFeedings
+        )
+        addMeal(commentedMeal)
         _uiState.update {
 
                 currentState ->
-            val lastMeal = currentState.meal
             currentState.copy(
                 meal = null,
-                lastMeal = lastMeal,
+                lastMeal = commentedMeal,
                 rightDurationString = "00:00:00",
-                leftDurationString = "00:00:00"
+                leftDurationString = "00:00:00",
+                comment = ""
             )
         }
     }
@@ -441,5 +457,6 @@ data class AddMealUiState(
     val leftDurationString: String,
     val rightDurationString: String,
     val lastMealTimeString: String,
-    val showAddManually: Boolean
+    val showAddManually: Boolean,
+    val comment: String
 )
