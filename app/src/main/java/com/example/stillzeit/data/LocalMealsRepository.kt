@@ -90,6 +90,7 @@ class LocalMealsRepository(
         for (feeding in meal.breastFeedings) {
             breastFeedingDao.insert(feeding)
         }
+        loadMeals()
     }
 
     override fun incrementWeek() {
