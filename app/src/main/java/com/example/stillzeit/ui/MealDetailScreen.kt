@@ -3,11 +3,13 @@ package com.example.stillzeit.ui
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -39,28 +41,37 @@ fun MealDetailScreen(
             }
         }
         item {
-            Row(modifier = Modifier.padding(8.dp)) {
-                Column(modifier = Modifier) {
-                    Text(stringResource(R.string.date))
-                    Text(text = meal?.formattedStartDate() ?: "", modifier = Modifier)
-                }
-                Column(modifier = Modifier) {
-                    Text(stringResource(R.string.time_Label))
-                    Text(text = meal?.formattedStartTime() ?: "", modifier = Modifier)
+            Card(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)) {
+                Row(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier) {
+                        Text(stringResource(R.string.date))
+                        Text(text = meal?.formattedStartDate() ?: "", modifier = Modifier)
+                    }
+                    Column(modifier = Modifier) {
+                        Text(stringResource(R.string.time_Label))
+                        Text(text = meal?.formattedStartTime() ?: "", modifier = Modifier)
+                    }
                 }
             }
         }
         item {
-            Row(modifier = Modifier.padding(8.dp)) {
-                Column(modifier = Modifier) {
+            Card(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.duration_label))
                     Text(text = meal?.formattedDuration() ?: "", modifier = Modifier)
                 }
             }
         }
         item {
-            Row(modifier = Modifier.padding(8.dp)) {
-                Column(modifier = Modifier) {
+            Card(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.comment_label))
                     Text(meal?.comment ?: "")
                 }
