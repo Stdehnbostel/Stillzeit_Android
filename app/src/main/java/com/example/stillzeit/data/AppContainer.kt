@@ -25,7 +25,15 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         database.bottleFeedingDao()
     }
 
+    private val otherFeedingDao by lazy {
+        database.otherFeedingDao()
+    }
+
+    private val pumpingDao by lazy {
+        database.pumpingDao()
+    }
+
     override val mealsRepository: MealsRepository by lazy {
-        LocalMealsRepository(mealDao, breastFeedingDao, bottleFeedingDao)
+        LocalMealsRepository(mealDao, breastFeedingDao, bottleFeedingDao, otherFeedingDao, pumpingDao)
     }
 }

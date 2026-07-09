@@ -26,8 +26,8 @@ data class Meal (
 
     var breastFeedings: List<BreastFeeding> = emptyList(),
     var bottleFeedings: List<BottleFeeding> = emptyList(),
-    // var otherFeedings: List<OtherFeeding> = emptyList(),
-    // var pumpings: List<Pumping> = emptyList()
+    var otherFeedings: List<OtherFeeding> = emptyList(),
+    var pumpings: List<Pumping> = emptyList()
 ) {
     fun duration(): kotlin.time.Duration {
         val end = end?.let { ZonedDateTime.parse(it) } ?: ZonedDateTime.now()
@@ -86,7 +86,7 @@ data class Meal (
     }
 }
 
-fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf(), bottleFeedings: List<BottleFeeding> = listOf()): Meal {
+fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf(), bottleFeedings: List<BottleFeeding> = listOf(), otherFeedings: List<OtherFeeding> = listOf(), pumpings: List<Pumping> = listOf()): Meal {
     return Meal(
         uuid = uuid,
         numberOfFeedings = numberOfFeedings,
@@ -95,6 +95,8 @@ fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf(), bottleFeed
         end = end,
         comment = comment,
         breastFeedings = breastFeedings,
-        bottleFeedings = bottleFeedings
+        bottleFeedings = bottleFeedings,
+        otherFeedings = otherFeedings,
+        pumpings = pumpings
     )
 }

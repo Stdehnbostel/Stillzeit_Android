@@ -74,6 +74,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mealDao(): MealDao
     abstract fun breastFeedingDao(): BreastFeedingDao
     abstract fun bottleFeedingDao(): BottleFeedingDao
+    abstract fun otherFeedingDao(): OtherFeedingDao
+    abstract fun pumpingDao(): PumpingDao
 
     companion object {
         @Volatile

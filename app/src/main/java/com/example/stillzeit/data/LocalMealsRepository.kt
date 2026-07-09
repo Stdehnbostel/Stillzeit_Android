@@ -20,6 +20,8 @@ class LocalMealsRepository(
     private val mealDao: MealDao,
     private val breastFeedingDao: BreastFeedingDao,
     private val bottleFeedingDao: BottleFeedingDao,
+    private val otherFeedingDao: OtherFeedingDao,
+    private val pumpingDao: PumpingDao,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ) : MealsRepository {
     // Müsste eigentlich auf das tatsächliche Ende der Woche, bzw. den Anfang der nächsten Woche
@@ -77,7 +79,11 @@ class LocalMealsRepository(
         if (mealEntity != null) {
             val breastFeedings = breastFeedingDao.getFeedingsForMeal(mealId)
             val bottleFeedings = bottleFeedingDao.getFeedingsForMeal(mealId)
-            emit(mealEntity.toMeal(breastFeedings, bottleFeedings))
+            val otherFeedings = otherFeedingDao.getFeedingsForMeal(mealId)
+            val pumpings = pumpingDao.getFeedingsForMeal(mealId)
+            emit(
+                mealEntity.toMeal(breastFeedings, bottleFeedings, otherFeedings, pumpings)
+            )
         }
     }.flowOn(Dispatchers.IO)
 
