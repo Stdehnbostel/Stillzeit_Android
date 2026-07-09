@@ -93,6 +93,11 @@ class LocalMealsRepository(
         loadMeals()
     }
 
+    override suspend fun updateMeal(meal: Meal) {
+        mealDao.updateMeal(meal.uuid, meal.comment, ZonedDateTime.now().toString())
+        loadMeals()
+    }
+
     override fun incrementWeek() {
         // keine zukündtigen Wochen anzeigen.
         if (endOfWeek < getEndOfWeekForTimestamp(ZonedDateTime.now())) {

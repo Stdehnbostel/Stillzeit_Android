@@ -25,6 +25,9 @@ interface MealDao {
     @Query("SELECT * FROM meal WHERE uuid = :mealId")
     suspend fun getMealById(mealId: UUID): MealEntity?
 
+    @Query("UPDATE meal SET comment = :comment, lastModified = :lastModified WHERE uuid = :mealId")
+    suspend fun updateMeal(mealId: UUID, comment: String?, lastModified: String)
+
     @Query("SELECT * FROM meal ORDER BY start DESC LIMIT 1")
     suspend fun getLastMeal(): MealEntity?
 }

@@ -10,6 +10,8 @@ interface MealsRepository {
 
     fun getMealById(mealId: UUID): Flow<Meal>
 
+    suspend fun updateMeal(meal: Meal)
+
     fun incrementWeek()
     fun decrementWeek()
     fun createTimeStringForDatabase(zonedDateTime: ZonedDateTime): String
