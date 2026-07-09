@@ -25,6 +25,7 @@ import java.util.UUID
 enum class MealTypePage {
     MENU,
     BREAST,
+    BOTTLE,
 }
 
 class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
@@ -36,6 +37,9 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
     var duration: kotlin.time.Duration by mutableStateOf(kotlin.time.Duration.ZERO)
         private set
 
+    var volume: Int by mutableStateOf(0)
+        private set
+
     fun setFeedingStart(start: ZonedDateTime) {
         this.start = start
         Log.i("FeedingStart", "setFeedingStart: $start")
@@ -44,6 +48,11 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
     fun setFeedingDuration(duration: kotlin.time.Duration) {
         this.duration = duration
         Log.i("Duration", "setFeedingDuration: $duration")
+    }
+
+    fun setFeedingVolume(volume: Int) {
+        this.volume = volume
+        Log.i("Volume", "setVolume: $volume")
     }
 
     fun setAddMealPage(page: MealTypePage) {

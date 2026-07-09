@@ -19,6 +19,8 @@
     <string name="date_range">Vom %s bis %s</string>
     <string name="add_feeding_manually">Stillmahlzeit</string>
     <string name="add_feeding_manually_expanded">Stillmahlzeit hinzufügen</string>
+    <string name="add_bottle_feeding_manually">Flaschenmahlzeit</string>
+    <string name="add_bottle_feeding_manually_expanded">Flaschenmahlzeit hinzufügen</string>
     <string name="breastfeeding_meal_title">Stillmahlzeit</string>
     <string name="back_button_content_description">Zurück</string>
     <string name="abort_action">Abbrechen</string>

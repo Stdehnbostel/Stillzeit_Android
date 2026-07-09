@@ -86,6 +86,22 @@ fun AddMealManuallyScreen(
                         )
                     )
                 }
+                Button(
+                    onClick = { viewModel.setAddMealPage(MealTypePage.BOTTLE) },
+                    modifier = modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
+                    )
+                    Text(
+                        stringResource(
+                            if (isLargeScreen) R.string.add_bottle_feeding_manually_expanded
+                            else R.string.add_bottle_feeding_manually
+                        )
+                    )
+                }
             }
         }
         MealTypePage.BREAST -> {
@@ -96,6 +112,16 @@ fun AddMealManuallyScreen(
                 setStart = viewModel::setFeedingStart,
                 setDuration = viewModel::setFeedingDuration,
                 saveBreastFeeding = viewModel::saveBreastFeeding,
+            )
+        }
+
+        MealTypePage.BOTTLE -> {
+            AddBottleFeedingMealManuallyScreen(
+                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) },
+                start = viewModel.start,
+                volume = viewModel.volume,
+                setStart = viewModel::setFeedingStart,
+                setVolume = viewModel::setFeedingVolume,
             )
         }
     }
@@ -118,14 +144,7 @@ fun AddBreastFeedingMealManuallyScreen(
         modifier = modifier.padding(horizontal = 16.dp)
     ) {
         item {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button_content_description)
-                    )
-                }
-            }
+            BackButton(onBack, modifier = Modifier.fillMaxWidth())
         }
         item {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -165,6 +184,26 @@ fun AddBreastFeedingMealManuallyScreen(
             Button(onClick = saveBreastFeeding) {
                 Text(stringResource(R.string.save))
             }
+        }
+    }
+}
+
+@Composable
+fun AddBottleFeedingMealManuallyScreen(
+    onBack: () -> Unit,
+    start: ZonedDateTime,
+    volume: Int,
+    setStart: (ZonedDateTime) -> Unit,
+    setVolume: (Int) -> Unit,
+    saveBreastFeeding: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
+        item {
+            BackButton(onBack, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -346,3 +385,18 @@ fun DurationField(
         )
     }
 }
+
+@Composable
+fun BackButton(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Start
+    ) {
+    IconButton(onClick = onBack) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(R.string.back_button_content_description)
+        )
+    }
+}
+    }
