@@ -23,7 +23,6 @@ import com.example.stillzeit.R
 
 @Composable
 fun MealDetailScreen(
-    mealId: String,
     onBack: () -> Unit,
     viewModel: MealDetailViewModel,
     modifier: Modifier = Modifier

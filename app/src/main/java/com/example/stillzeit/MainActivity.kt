@@ -165,7 +165,6 @@ fun AppNavHost(
                 backStackEntry ->
             val mealId = requireNotNull(backStackEntry.arguments?.getString("mealId"))
             MealDetailScreen(
-                mealId = mealId,
                 onBack = { navController.popBackStack() },
                 viewModel = viewModel(factory = MealDetailViewModel.Factory),
                 modifier = modifier
