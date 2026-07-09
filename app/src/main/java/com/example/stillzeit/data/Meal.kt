@@ -25,7 +25,7 @@ data class Meal (
     var comment: String?,
 
     var breastFeedings: List<BreastFeeding> = emptyList(),
-    // var bottleFeedings: List<BottleFeeding> = emptyList(),
+    var bottleFeedings: List<BottleFeeding> = emptyList(),
     // var otherFeedings: List<OtherFeeding> = emptyList(),
     // var pumpings: List<Pumping> = emptyList()
 ) {
@@ -86,7 +86,7 @@ data class Meal (
     }
 }
 
-fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf()): Meal {
+fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf(), bottleFeedings: List<BottleFeeding> = listOf()): Meal {
     return Meal(
         uuid = uuid,
         numberOfFeedings = numberOfFeedings,
@@ -94,6 +94,7 @@ fun MealEntity.toMeal(breastFeedings: List<BreastFeeding> = listOf()): Meal {
         start = start,
         end = end,
         comment = comment,
-        breastFeedings = breastFeedings
+        breastFeedings = breastFeedings,
+        bottleFeedings = bottleFeedings
     )
 }

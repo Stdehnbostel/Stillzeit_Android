@@ -22,6 +22,6 @@ interface BreastFeedingDao {
     }
 
     @Transaction
-    @Query("SELECT * from feeding WHERE mealId = :mealId")
+    @Query("SELECT * from feeding WHERE mealId = :mealId AND type = 'BREAST'")
     suspend fun getFeedingsForMeal(mealId: UUID): List<BreastFeeding>
 }

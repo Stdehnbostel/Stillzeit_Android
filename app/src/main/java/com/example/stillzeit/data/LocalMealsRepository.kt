@@ -19,6 +19,7 @@ import java.util.UUID
 class LocalMealsRepository(
     private val mealDao: MealDao,
     private val breastFeedingDao: BreastFeedingDao,
+    private val bottleFeedingDao: BottleFeedingDao,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ) : MealsRepository {
     // Müsste eigentlich auf das tatsächliche Ende der Woche, bzw. den Anfang der nächsten Woche
@@ -48,7 +49,10 @@ class LocalMealsRepository(
                 end = createTimeStringForDatabase(endOfWeek)
             )
             _meals.value = mealEntities.map {
-                it.toMeal(breastFeedingDao.getFeedingsForMeal(it.uuid))
+                it.toMeal(
+                    breastFeedings = breastFeedingDao.getFeedingsForMeal(it.uuid),
+                    bottleFeedings = bottleFeedingDao.getFeedingsForMeal(it.uuid)
+                )
             }
             _days.value = makeDays(_meals.value)
         }
@@ -71,16 +75,18 @@ class LocalMealsRepository(
     override fun getMealById(mealId: UUID): Flow<Meal> = flow {
         val mealEntity = mealDao.getMealById(mealId)
         if (mealEntity != null) {
-            val feedings = breastFeedingDao.getFeedingsForMeal(mealId)
-            emit(mealEntity.toMeal(feedings))
+            val breastFeedings = breastFeedingDao.getFeedingsForMeal(mealId)
+            val bottleFeedings = bottleFeedingDao.getFeedingsForMeal(mealId)
+            emit(mealEntity.toMeal(breastFeedings, bottleFeedings))
         }
     }.flowOn(Dispatchers.IO)
 
     override fun getLastMeal(): Flow<Meal?> = flow {
         val mealEntity = mealDao.getLastMeal()
         if (mealEntity != null) {
-            val feedings = breastFeedingDao.getFeedingsForMeal(mealEntity.uuid)
-            emit(mealEntity.toMeal(feedings))
+            val breastFeedings = breastFeedingDao.getFeedingsForMeal(mealEntity.uuid)
+            val bottleFeedings = bottleFeedingDao.getFeedingsForMeal(mealEntity.uuid)
+            emit(mealEntity.toMeal(breastFeedings, bottleFeedings))
         }
     }.flowOn(Dispatchers.IO)
 
@@ -99,7 +105,7 @@ class LocalMealsRepository(
     }
 
     override fun incrementWeek() {
-        // keine zukündtigen Wochen anzeigen.
+        // keine zukünftigen Wochen anzeigen.
         if (endOfWeek < getEndOfWeekForTimestamp(ZonedDateTime.now())) {
             endOfWeek = endOfWeek.plusDays(7)
             loadMeals()

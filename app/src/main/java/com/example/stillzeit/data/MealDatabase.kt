@@ -43,14 +43,29 @@ class Converters {
     fun stringToUuid(string: String?): UUID? {
         return string?.let { UUID.fromString(it) }
     }
+
+    @TypeConverter
+    fun bottleTypeToString(type: BottleType): String {
+        return type.type
+    }
+
+    @TypeConverter
+    fun stringToBottleType(string: String): BottleType {
+        return when (string) {
+            "milk" -> BottleType.MILK
+            "formula" -> BottleType.FORMULA
+            else -> BottleType.MILK
+        }
+    }
 }
 
-@Database(entities = [FeedingEntity::class, BreastFeedingDetailEntity::class, MealEntity::class], version = 1, exportSchema = false)
+@Database(entities = [FeedingEntity::class, BreastFeedingDetailEntity::class, BottleFeedingDetailEntity::class, MealEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun feedingDao(): FeedingDao
     abstract fun mealDao(): MealDao
     abstract fun breastFeedingDao(): BreastFeedingDao
+    abstract fun bottleFeedingDao(): BottleFeedingDao
 
     companion object {
         @Volatile
