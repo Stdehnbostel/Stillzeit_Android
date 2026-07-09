@@ -59,7 +59,15 @@ class Converters {
     }
 }
 
-@Database(entities = [FeedingEntity::class, BreastFeedingDetailEntity::class, BottleFeedingDetailEntity::class, MealEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [FeedingEntity::class,
+        BreastFeedingDetailEntity::class,
+        BottleFeedingDetailEntity::class,
+        OtherFeedingDetailEntity::class,
+        PumpingDetailEntity::class,
+        MealEntity::class],
+    version = 1,
+    exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun feedingDao(): FeedingDao
