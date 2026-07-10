@@ -8,7 +8,7 @@ import java.util.UUID
 data class MealEntity(
     @PrimaryKey val uuid: UUID,
     val numberOfFeedings: Int,
-    val type: String,
+    val type: MealType,
     val start: String,
     val end: String?,
     val lastModified: String,

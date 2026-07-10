@@ -239,7 +239,7 @@ class AddMealViewModel(val repository: MealsRepository) : ViewModel() {
             val newMeal = Meal(
                 UUID.randomUUID(),
                 0,
-                "breast",
+                MealType.BREAST,
                 mealStart,
                 null,
                 "",

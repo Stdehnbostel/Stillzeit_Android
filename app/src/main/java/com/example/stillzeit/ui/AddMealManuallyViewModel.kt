@@ -77,7 +77,7 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
         val meal = Meal(
             mealUuid,
             1,
-            "breast",
+            MealType.BREAST,
             repository.createTimeStringForDatabase(start),
             repository.createTimeStringForDatabase(end),
             "",
@@ -113,7 +113,7 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
         val meal = Meal(
             mealId,
             1,
-            "bottle",
+            MealType.BOTTLE,
             start = repository.createTimeStringForDatabase(start),
             end = null,
             comment = "",

@@ -1,15 +1,12 @@
 package com.example.stillzeit.data
 
-import android.util.Log
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.time.Duration
 import java.time.format.DateTimeFormatter
 import kotlin.time.toKotlinDuration
 
-enum class MealType(value: String) {
+enum class MealType(val value: String) {
     BREAST("breast"),
     BOTTLE("bottle"),
     OTHER("other"),
@@ -19,7 +16,7 @@ enum class MealType(value: String) {
 data class Meal (
     val uuid: UUID,
     var numberOfFeedings: Int,
-    var type: String,
+    var type: MealType,
     var start: String,
     var end: String?,
     var comment: String?,

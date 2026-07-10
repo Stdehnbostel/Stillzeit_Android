@@ -26,12 +26,12 @@ class Converters {
 
     @TypeConverter
     fun mealTypeToString(type: MealType): String {
-        return type.name
+        return type.value
     }
 
     @TypeConverter
     fun stringToMealType(string: String): MealType {
-        return MealType.valueOf(string)
+        return MealType.entries.find { it.value == string || it.name == string } ?: MealType.OTHER
     }
 
     @TypeConverter
