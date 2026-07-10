@@ -68,7 +68,7 @@ fun AddMealManuallyScreen(
         MealTypePage.MENU -> {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier
+                modifier = modifier.padding(horizontal = 16.dp)
             ) {
                 Button(
                     onClick = { viewModel.setAddMealPage(MealTypePage.BREAST) },
@@ -102,6 +102,38 @@ fun AddMealManuallyScreen(
                         )
                     )
                 }
+                Button(
+                    onClick = { viewModel.setAddMealPage(MealTypePage.OTHER) },
+                    modifier = modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
+                    )
+                    Text(
+                        stringResource(
+                            if (isLargeScreen) R.string.add_other_feeding_manually_expanded
+                            else R.string.add_other_feeding_manually
+                        )
+                    )
+                }
+                Button(
+                    onClick = { viewModel.setAddMealPage(MealTypePage.PUMPING) },
+                    modifier = modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
+                    )
+                    Text(
+                        stringResource(
+                            if (isLargeScreen) R.string.add_pumping_manually_expanded
+                            else R.string.add_pumping_manually
+                        )
+                    )
+                }
             }
         }
         MealTypePage.BREAST -> {
@@ -117,6 +149,25 @@ fun AddMealManuallyScreen(
 
         MealTypePage.BOTTLE -> {
             AddBottleFeedingMealManuallyScreen(
+                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) },
+                start = viewModel.start,
+                volume = viewModel.volume,
+                setStart = viewModel::setFeedingStart,
+                setVolume = viewModel::setFeedingVolume,
+            )
+        }
+        MealTypePage.OTHER -> {
+            AddOtherFeedingMealManuallyScreen(
+                onBack = { viewModel.setAddMealPage(MealTypePage.MENU) },
+                start = viewModel.start,
+                amount = viewModel.volume,
+                setStart = viewModel::setFeedingStart,
+                setAmount = viewModel::setFeedingVolume,
+            )
+        }
+
+        MealTypePage.PUMPING -> {
+            AddPumpingManuallyScreen(
                 onBack = { viewModel.setAddMealPage(MealTypePage.MENU) },
                 start = viewModel.start,
                 volume = viewModel.volume,
@@ -195,7 +246,47 @@ fun AddBottleFeedingMealManuallyScreen(
     volume: Int,
     setStart: (ZonedDateTime) -> Unit,
     setVolume: (Int) -> Unit,
-    saveBreastFeeding: () -> Unit = {},
+    save: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
+        item {
+            BackButton(onBack, modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+fun AddOtherFeedingMealManuallyScreen(
+    onBack: () -> Unit,
+    start: ZonedDateTime,
+    amount: Int,
+    setStart: (ZonedDateTime) -> Unit,
+    setAmount: (Int) -> Unit,
+    save: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
+        item {
+            BackButton(onBack, modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+fun AddPumpingManuallyScreen(
+    onBack: () -> Unit,
+    start: ZonedDateTime,
+    volume: Int,
+    setStart: (ZonedDateTime) -> Unit,
+    setVolume: (Int) -> Unit,
+    save: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(

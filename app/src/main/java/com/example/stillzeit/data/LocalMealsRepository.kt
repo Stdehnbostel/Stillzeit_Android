@@ -92,6 +92,8 @@ class LocalMealsRepository(
         if (mealEntity != null) {
             val breastFeedings = breastFeedingDao.getFeedingsForMeal(mealEntity.uuid)
             val bottleFeedings = bottleFeedingDao.getFeedingsForMeal(mealEntity.uuid)
+            val otherFeedings = otherFeedingDao.getFeedingsForMeal(mealEntity.uuid)
+            val pumpings = pumpingDao.getFeedingsForMeal(mealEntity.uuid)
             emit(mealEntity.toMeal(breastFeedings, bottleFeedings))
         }
     }.flowOn(Dispatchers.IO)

@@ -26,6 +26,8 @@ enum class MealTypePage {
     MENU,
     BREAST,
     BOTTLE,
+    OTHER,
+    PUMPING,
 }
 
 class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
