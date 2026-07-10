@@ -30,9 +30,10 @@
     <string name="abort_action">Abbrechen</string>
     <string name="ok">Ok</string>
     <string name="date">Datum</string>
-    <string name="time">Uhtzeit</string>
+    <string name="time">Uhrzeit</string>
     <string name="duration_in_minutes">Dauer (Minuten)</string>
     <string name="duration_label">Dauer</string>
+    <string name="volume_label">Menge (ml)</string>
     <string name="time_Label">Uhrzeit</string>
     <string name="save">Speichern</string>
     <string name="edit">Bearbeiten</string>

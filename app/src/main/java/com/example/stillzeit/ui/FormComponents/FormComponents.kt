@@ -117,7 +117,7 @@ fun TimeField(
 }
 
 @Composable
-fun DurationField(
+fun AmountField(
     @StringRes label: Int,
     value: String,
     onValueChange: (String) -> Unit,

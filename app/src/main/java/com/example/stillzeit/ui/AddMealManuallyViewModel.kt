@@ -11,6 +11,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.stillzeit.StillzeitApplication
+import com.example.stillzeit.data.BottleFeeding
+import com.example.stillzeit.data.BottleFeedingDetailEntity
+import com.example.stillzeit.data.BottleType
 import com.example.stillzeit.data.BreastFeeding
 import com.example.stillzeit.data.BreastFeedingDetailEntity
 import com.example.stillzeit.data.FeedingEntity
@@ -68,6 +71,7 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
 
     fun saveBreastFeeding() {
         val end = start.plusMinutes(duration.inWholeMinutes)
+        duration = kotlin.time.Duration.ZERO
         val mealUuid = UUID.randomUUID()
         val feedingUuid = UUID.randomUUID()
         val meal = Meal(
@@ -99,6 +103,38 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
         viewModelScope.launch {
             repository.addMeal(meal)
         }
+    }
+
+    fun saveBottleFeeding() {
+        val mealId = UUID.randomUUID()
+        val feedingUuid = UUID.randomUUID()
+        val bottleVolume = volume
+        volume = 0
+        val meal = Meal(
+            mealId,
+            1,
+            "bottle",
+            start = repository.createTimeStringForDatabase(start),
+            end = null,
+            comment = "",
+            listOf(),
+            listOf(
+                BottleFeeding(
+                    feeding = FeedingEntity(
+                        feedingUuid.toString(),
+                        bottleVolume,
+                        MealType.BOTTLE,
+                        repository.createTimeStringForDatabase(ZonedDateTime.now()),
+                        mealId
+                    ),
+                    detail = BottleFeedingDetailEntity(
+                        feedingUuid.toString(),
+                        repository.createTimeStringForDatabase(start),
+                        BottleType.MILK,
+                    )
+                )
+            )
+        )
     }
 
     companion object {
