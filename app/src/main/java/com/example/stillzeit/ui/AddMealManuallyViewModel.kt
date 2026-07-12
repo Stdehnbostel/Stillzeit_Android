@@ -20,6 +20,10 @@ import com.example.stillzeit.data.FeedingEntity
 import com.example.stillzeit.data.Meal
 import com.example.stillzeit.data.MealType
 import com.example.stillzeit.data.MealsRepository
+import com.example.stillzeit.data.OtherFeeding
+import com.example.stillzeit.data.OtherFeedingDetailEntity
+import com.example.stillzeit.data.Pumping
+import com.example.stillzeit.data.PumpingDetailEntity
 import com.example.stillzeit.data.Side
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -69,72 +73,79 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
         return page
     }
 
-    fun saveBreastFeeding() {
+    fun saveMeal(type: MealType) {
         val end = start.plusMinutes(duration.inWholeMinutes)
         duration = kotlin.time.Duration.ZERO
-        val mealUuid = UUID.randomUUID()
-        val feedingUuid = UUID.randomUUID()
-        val meal = Meal(
-            mealUuid,
-            1,
-            MealType.BREAST,
-            repository.createTimeStringForDatabase(start),
-            repository.createTimeStringForDatabase(end),
-            "",
-            listOf(
-                BreastFeeding(
-                    feeding = FeedingEntity(
-                        feedingUuid.toString(),
-                        0,
-                        MealType.BREAST,
-                        repository.createTimeStringForDatabase(ZonedDateTime.now()),
-                        mealUuid
-                    ),
-                    detail = BreastFeedingDetailEntity(
-                        feedingUuid.toString(),
-                        repository.createTimeStringForDatabase(start),
-                        repository.createTimeStringForDatabase(end),
-                        true,
-                        Side.EMPTY
-                    )
-                )
-            )
-        )
-
-        viewModelScope.launch {
-            repository.addMeal(meal)
-        }
-    }
-
-    fun saveBottleFeeding() {
+        val mealAmount = volume
+        volume = 0
         val mealId = UUID.randomUUID()
         val feedingUuid = UUID.randomUUID()
-        val bottleVolume = volume
-        volume = 0
-        val meal = Meal(
-            mealId,
-            1,
-            MealType.BOTTLE,
-            start = repository.createTimeStringForDatabase(start),
-            end = null,
-            comment = "",
-            listOf(),
-            listOf(
+        val feedingEntity = FeedingEntity(
+            feedingUuid.toString(),
+            mealAmount,
+            type,
+            repository.createTimeStringForDatabase(ZonedDateTime.now()),
+            mealId
+        )
+        val feeding = when (type) {
+            MealType.BREAST -> {
+                BreastFeeding(
+                    feeding = feedingEntity,
+                    detail = BreastFeedingDetailEntity(
+                    feedingUuid.toString(),
+                    repository.createTimeStringForDatabase(start),
+                    repository.createTimeStringForDatabase(end),
+                    false,
+                    Side.EMPTY
+                    )
+                )
+            }
+
+            MealType.BOTTLE -> {
                 BottleFeeding(
-                    feeding = FeedingEntity(
-                        feedingUuid.toString(),
-                        bottleVolume,
-                        MealType.BOTTLE,
-                        repository.createTimeStringForDatabase(ZonedDateTime.now()),
-                        mealId
-                    ),
+                    feeding = feedingEntity,
                     detail = BottleFeedingDetailEntity(
                         feedingUuid.toString(),
                         repository.createTimeStringForDatabase(start),
-                        BottleType.MILK,
+                        BottleType.MILK
                     )
                 )
-            )
+            }
+
+            MealType.OTHER -> {
+                OtherFeeding(
+                    feeding = feedingEntity,
+                    detail = OtherFeedingDetailEntity(
+                        feedingUuid.toString(),
+                        repository.createTimeStringForDatabase(start),
+                        ""
+                    )
+                )
+            }
+
+            MealType.PUMPING -> {
+                Pumping(
+                    feeding = feedingEntity,
+                    detail = PumpingDetailEntity(
+                        feedingUuid.toString(),
+                        repository.createTimeStringForDatabase(start),
+                        Side.EMPTY
+                    )
+                )
+            }
+        }
+
+        val meal = Meal(
+            mealId,
+            1,
+            type,
+            repository.createTimeStringForDatabase(start),
+            repository.createTimeStringForDatabase(end),
+            "",
+            breastFeedings = if (type == MealType.BREAST) listOf(feeding as BreastFeeding) else listOf(),
+            bottleFeedings = if (type == MealType.BOTTLE) listOf(feeding as BottleFeeding) else listOf(),
+            otherFeedings = if (type == MealType.OTHER) listOf(feeding as OtherFeeding) else listOf(),
+            pumpings = if (type == MealType.PUMPING) listOf(feeding as Pumping) else listOf()
         )
 
         viewModelScope.launch {

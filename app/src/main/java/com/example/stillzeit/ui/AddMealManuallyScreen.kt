@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
+import com.example.stillzeit.data.MealType
 import com.example.stillzeit.ui.FormComponents.DateField
 import com.example.stillzeit.ui.FormComponents.AmountField
 import com.example.stillzeit.ui.FormComponents.DateTimePickerRow
@@ -128,7 +129,7 @@ fun AddMealManuallyScreen(
                 duration = viewModel.duration,
                 setStart = viewModel::setFeedingStart,
                 setDuration = viewModel::setFeedingDuration,
-                saveBreastFeeding = viewModel::saveBreastFeeding,
+                saveBreastFeeding = viewModel::saveMeal,
             )
         }
 
@@ -139,7 +140,7 @@ fun AddMealManuallyScreen(
                 volume = viewModel.volume,
                 setStart = viewModel::setFeedingStart,
                 setVolume = viewModel::setFeedingVolume,
-                save = viewModel::saveBottleFeeding,
+                save = viewModel::saveMeal,
             )
         }
         MealTypePage.OTHER -> {
@@ -149,6 +150,7 @@ fun AddMealManuallyScreen(
                 amount = viewModel.volume,
                 setStart = viewModel::setFeedingStart,
                 setAmount = viewModel::setFeedingVolume,
+                save = viewModel::saveMeal
             )
         }
 
@@ -159,6 +161,7 @@ fun AddMealManuallyScreen(
                 volume = viewModel.volume,
                 setStart = viewModel::setFeedingStart,
                 setVolume = viewModel::setFeedingVolume,
+                save = viewModel::saveMeal
             )
         }
     }
@@ -173,7 +176,7 @@ fun AddBreastFeedingMealManuallyScreen(
     duration: kotlin.time.Duration,
     setStart: (ZonedDateTime) -> Unit,
     setDuration: (kotlin.time.Duration) -> Unit,
-    saveBreastFeeding: () -> Unit = {},
+    saveBreastFeeding: (MealType) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -207,7 +210,7 @@ fun AddBreastFeedingMealManuallyScreen(
         }
         item {
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = saveBreastFeeding) {
+            Button(onClick = { saveBreastFeeding(MealType.BREAST) }) {
                 Text(stringResource(R.string.save))
             }
         }
@@ -221,7 +224,7 @@ fun AddBottleFeedingMealManuallyScreen(
     volume: Int,
     setStart: (ZonedDateTime) -> Unit,
     setVolume: (Int) -> Unit,
-    save: () -> Unit = {},
+    save: (MealType) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -255,7 +258,7 @@ fun AddBottleFeedingMealManuallyScreen(
         }
         item {
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = save) {
+            Button(onClick = { save(MealType.BOTTLE) }) {
                 Text(stringResource(R.string.save))
             }
         }
@@ -269,7 +272,7 @@ fun AddOtherFeedingMealManuallyScreen(
     amount: Int,
     setStart: (ZonedDateTime) -> Unit,
     setAmount: (Int) -> Unit,
-    save: () -> Unit = {},
+    save: (MealType) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -304,7 +307,7 @@ fun AddOtherFeedingMealManuallyScreen(
         }
         item {
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = save) {
+            Button(onClick = { save(MealType.OTHER) }) {
                 Text(stringResource(R.string.save))
             }
         }
@@ -318,7 +321,7 @@ fun AddPumpingManuallyScreen(
     volume: Int,
     setStart: (ZonedDateTime) -> Unit,
     setVolume: (Int) -> Unit,
-    save: () -> Unit = {},
+    save: (MealType) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -352,7 +355,7 @@ fun AddPumpingManuallyScreen(
         }
         item {
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = save) {
+            Button(onClick = { save(MealType.PUMPING) }) {
                 Text(stringResource(R.string.save))
             }
         }
