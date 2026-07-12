@@ -100,6 +100,7 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
                 )
             )
         )
+
         viewModelScope.launch {
             repository.addMeal(meal)
         }
@@ -135,6 +136,10 @@ class AddMealManuallyViewModel(val repository: MealsRepository) : ViewModel() {
                 )
             )
         )
+
+        viewModelScope.launch {
+            repository.addMeal(meal)
+        }
     }
 
     companion object {
