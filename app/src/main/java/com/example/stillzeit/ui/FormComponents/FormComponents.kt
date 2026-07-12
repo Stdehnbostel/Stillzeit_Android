@@ -5,7 +5,10 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -30,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
 import java.time.Instant
 import java.time.ZoneId
@@ -209,6 +213,33 @@ fun DateField(
                         showPicker = true
                         Log.i("DatePicker", "DatePicker overlay clicked")
                     })
+            )
+        }
+    }
+}
+
+@Composable
+fun DateTimePickerRow(
+    @StringRes dateLabel: Int,
+    @StringRes timeLabel: Int,
+    start: ZonedDateTime,
+    setStart: (ZonedDateTime) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier) {
+        Box(modifier = Modifier.weight(1f)) {
+            DateField(
+                label = dateLabel,
+                value = start,
+                setDate = setStart
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Box(modifier = Modifier.weight(1f)) {
+            TimeField(
+                label = timeLabel,
+                value = start,
+                setTime = setStart
             )
         }
     }

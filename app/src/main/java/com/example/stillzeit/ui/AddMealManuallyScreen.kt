@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.example.stillzeit.R
 import com.example.stillzeit.ui.FormComponents.DateField
 import com.example.stillzeit.ui.FormComponents.AmountField
+import com.example.stillzeit.ui.FormComponents.DateTimePickerRow
 import com.example.stillzeit.ui.FormComponents.TimeField
 import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.minutes
@@ -183,23 +184,12 @@ fun AddBreastFeedingMealManuallyScreen(
             BackButton(onBack, modifier = Modifier.fillMaxWidth())
         }
         item {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    DateField(
-                        label = R.string.date,
-                        value = start,
-                        setDate = setStart
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.weight(1f)) {
-                    TimeField(
-                        label = R.string.time,
-                        value = start,
-                        setTime = setStart
-                    )
-                }
-            }
+            DateTimePickerRow(
+                dateLabel = R.string.date,
+                timeLabel = R.string.time,
+                start = start,
+                setStart = setStart,
+            )
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -242,23 +232,12 @@ fun AddBottleFeedingMealManuallyScreen(
             BackButton(onBack, modifier = Modifier.fillMaxWidth())
         }
         item {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    DateField(
-                        label = R.string.date,
-                        value = start,
-                        setDate = setStart
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.weight(1f)) {
-                    TimeField(
-                        label = R.string.time,
-                        value = start,
-                        setTime = setStart
-                    )
-                }
-            }
+            DateTimePickerRow(
+                dateLabel = R.string.date,
+                timeLabel = R.string.time,
+                start = start,
+                setStart = setStart,
+            )
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -300,6 +279,35 @@ fun AddOtherFeedingMealManuallyScreen(
         item {
             BackButton(onBack, modifier = Modifier.fillMaxWidth())
         }
+        item {
+            DateTimePickerRow(
+                dateLabel = R.string.date,
+                timeLabel = R.string.time,
+                start = start,
+                setStart = setStart,
+            )
+        }
+        item {
+            // Placeholder für komplexeres Teilmahlzeiten-Feld
+            Spacer(modifier = Modifier.height(16.dp))
+            var volumeText by remember { mutableStateOf (amount.toString()) }
+            AmountField(
+                label = R.string.volume_label,
+                value = volumeText,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        volumeText = newValue
+                        setAmount(newValue.toIntOrNull() ?: 0)
+                    }
+                }
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = save) {
+                Text(stringResource(R.string.save))
+            }
+        }
     }
 }
 
@@ -319,6 +327,34 @@ fun AddPumpingManuallyScreen(
     ) {
         item {
             BackButton(onBack, modifier = Modifier.fillMaxWidth())
+        }
+        item {
+            DateTimePickerRow(
+                dateLabel = R.string.date,
+                timeLabel = R.string.time,
+                start = start,
+                setStart = setStart,
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            var volumeText by remember { mutableStateOf (volume.toString()) }
+            AmountField(
+                label = R.string.volume_label,
+                value = volumeText,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        volumeText = newValue
+                        setVolume(newValue.toIntOrNull() ?: 0)
+                    }
+                }
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = save) {
+                Text(stringResource(R.string.save))
+            }
         }
     }
 }
