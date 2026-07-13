@@ -126,7 +126,8 @@ fun MealDetailScreen(
         item {
             Card(modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)) {
+                .padding(8.dp)
+            ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.comment_label))
                     if (isEditing) {
@@ -140,6 +141,16 @@ fun MealDetailScreen(
                     } else {
                         Text(meal?.comment ?: "")
                     }
+                }
+            }
+        }
+        for (feeding in meal?.breastFeedings ?: listOf()) {
+            item {
+                Card(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                ) {
+                    Text(feeding.detail.start)
                 }
             }
         }
