@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.room.util.TableInfo
 import com.example.stillzeit.R
+import com.example.stillzeit.data.Side
 
 @Composable
 fun MealDetailScreen(
@@ -144,13 +146,35 @@ fun MealDetailScreen(
                 }
             }
         }
+        item {
+            Text(
+                text = stringResource(R.string.meal_components),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+            )
+        }
         for (feeding in meal?.breastFeedings ?: listOf()) {
             item {
                 Card(modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
                 ) {
-                    Text(feeding.detail.start)
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)) {
+                        if (feeding.detail.side != Side.EMPTY) {
+                            Text(
+                                text = stringResource(if (feeding.detail.side == Side.LEFT) R.string.left_side else R.string.right_side)
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(feeding.detail.start)
+                        }
+                    }
                 }
             }
         }

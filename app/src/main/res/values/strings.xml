@@ -40,4 +40,7 @@
     <string name="delete_meal">Mahlzeit löschen</string>
     <string name="list_view">Liste</string>
     <string name="diagramm_view">Diagramm</string>
+    <string name="meal_components">Teilmahlzeiten</string>
+    <string name="left_side">Links</string>
+    <string name="right_side">Rechts</string>
 </resources>
